@@ -1,23 +1,30 @@
 import { useState } from 'react';
 import {
+  IconHome,
   IconMap,
   IconTool,
   IconLogout,
   IconLayoutDashboard,
   IconSwitchHorizontal,
+  IconMessage,
 } from '@tabler/icons-react';
 import { Code, Group } from '@mantine/core';
 import { MantineLogo } from '@mantinex/mantine-logo';
 import classes from './NavbarSimple.module.css';
+import myLogo from './assets/logo-v-zion.svg'; // Importation du fichier
 
 const data = [
+  { link: '', label: 'Home', icon: IconHome },
   { link: '', label: 'Carte', icon: IconMap },
   { link: '', label: 'Dashboard', icon: IconLayoutDashboard },
   { link: '', label: 'Maintenance', icon: IconTool },
+  { link: '', label: 'Messages', icon: IconMessage },
 ];
 
-export function NavbarSimple() {
-  const [active, setActive] = useState('Billing');
+export function Navbar( { updateActive } ) {
+  const [active, setActive] = useState('Home');
+
+  updateActive(active)
 
   const links = data.map((item) => (
     <a
@@ -40,7 +47,11 @@ export function NavbarSimple() {
         <br />
       <div className={classes.navbarMain}>
         <Group className={classes.header} justify="space-between">
-          <MantineLogo size={28} />
+          <img 
+            src={myLogo} 
+            alt="Logo Gym" 
+            style={{ height: 50, width: 'auto'}} // Gardez la même hauteur que le logo original
+          />
           <Code fw={700}>v3.1.2</Code>
         </Group>
         <br />
