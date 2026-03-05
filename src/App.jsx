@@ -15,12 +15,18 @@ export default function App() {
 
         <Navbar updateActive = {setActive} />
 
-        <main style={{ flex: 1, padding: '20px' }}>
-          {active === 'Home' && <GymMap />}
-          {active === 'Carte' && <></>}
-          {active === 'Dashboard' && <></>}
-          {active === 'Maintenance' && <></>}
-          {active === 'Messages' && <></>}
+        <main style={{ flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          padding: '20px',
+          width: '80vw',
+          backgroundColor: 'light-black'
+          }}>
+          {active === 'Home' && <div>Maison</div> }
+          {active === 'Carte' && <GymMap />}
+          {active === 'Dashboard' && <div>Tableau de bord</div>}
+          {active === 'Maintenance' && <div>Maintenance prédictive</div>}
+          {active === 'Messages' && <div>Les problèmes</div>}
         </main>
 
       </div>

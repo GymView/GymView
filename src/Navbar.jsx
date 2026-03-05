@@ -9,7 +9,6 @@ import {
   IconMessage,
 } from '@tabler/icons-react';
 import { Code, Group } from '@mantine/core';
-import { MantineLogo } from '@mantinex/mantine-logo';
 import classes from './NavbarSimple.module.css';
 import myLogo from './assets/logo-v-zion.svg'; // Importation du fichier
 
@@ -50,7 +49,7 @@ export function Navbar( { updateActive } ) {
           <img 
             src={myLogo} 
             alt="Logo Gym" 
-            style={{ height: 50, width: 'auto'}} // Gardez la même hauteur que le logo original
+            style={{ height: 50, width: 'auto'}}
           />
           <Code fw={700}>v3.1.2</Code>
         </Group>
