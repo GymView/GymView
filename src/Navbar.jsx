@@ -7,6 +7,7 @@ import {
   IconLayoutDashboard,
   IconSwitchHorizontal,
   IconMessage,
+  IconEdit,
 } from '@tabler/icons-react';
 import { Code, Group } from '@mantine/core';
 import classes from './NavbarSimple.module.css';
@@ -17,7 +18,7 @@ const data = [
   { link: '', label: 'Carte', icon: IconMap },
   { link: '', label: 'Dashboard', icon: IconLayoutDashboard },
   { link: '', label: 'Maintenance', icon: IconTool },
-  { link: '', label: 'GymPlanner', icon: IconTool },
+  { link: '', label: 'GymPlanner', icon: IconEdit },
   { link: '', label: 'Messages', icon: IconMessage },
 ];
 
