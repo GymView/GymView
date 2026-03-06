@@ -1,10 +1,10 @@
 .grid-stack {
-  background: #14df54;
+  background: #707371;
   min-height: 600px;
 }
 
 .grid-stack-item-content {
-  background: #1abc9c;
+  
   color: white;
   display: flex;
   align-items: center;
@@ -12,4 +12,37 @@
   border-radius: 6px;
   height: 100%;
   font-weight: bold;
+}
+
+.machine-form {
+  position: fixed;
+  right: 20px;
+  top: 80px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+
+
+.machine {
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  color:white;
+}
+
+.machine-libre{
+  background:#2ecc71;
+}
+
+.machine-utilise{
+  background:#f39c12;
+}
+
+.machine-occupe{
+  background:#e74c3c;
 }
