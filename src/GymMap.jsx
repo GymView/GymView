@@ -1,7 +1,7 @@
 import { Paper, Title, Text, SimpleGrid, Tooltip } from '@mantine/core';
 import { Machine } from './Machine';
 
-export function GymMap() {
+export default function GymMap() {
   return (
     <Paper shadow="xs" p="xl" withBorder style={{ backgroundColor: 'blak' }}>
       <Title order={2} mb="xl">Plan de la Salle</Title>

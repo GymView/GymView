@@ -1,8 +1,12 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { Navbar } from './Navbar';
-import { GymMap } from './GymMap';
 import { useState } from 'react';
+import Home from './Home';
+import GymMap from './GymMap';
+import Dashboard from './Dashboard';
+import Maintenance from './Maintenance';
+import Messages from './Messages';
 
 const theme = createTheme({});
 
@@ -22,11 +26,11 @@ export default function App() {
           width: '80vw',
           backgroundColor: 'light-black'
           }}>
-          {active === 'Home' && <div>Maison</div> }
+          {active === 'Home' && <Home /> }
           {active === 'Carte' && <GymMap />}
-          {active === 'Dashboard' && <div>Tableau de bord</div>}
-          {active === 'Maintenance' && <div>Maintenance prédictive</div>}
-          {active === 'Messages' && <div>Les problèmes</div>}
+          {active === 'Dashboard' && <Dashboard />}
+          {active === 'Maintenance' && <Maintenance />}
+          {active === 'Messages' && <Messages />}
         </main>
 
       </div>
