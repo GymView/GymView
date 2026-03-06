@@ -7,7 +7,7 @@ import GymMap from './GymMap';
 import Dashboard from './Dashboard';
 import Maintenance from './Maintenance';
 import Messages from './Messages';
-
+import GymPlanner from "./GymPlanner"
 const theme = createTheme({});
 
 export default function App() {
@@ -29,6 +29,7 @@ export default function App() {
           {active === 'Home' && <Home /> }
           {active === 'Carte' && <GymMap />}
           {active === 'Dashboard' && <Dashboard />}
+          {active === 'GymPlanner' && <GymPlanner />}
           {active === 'Maintenance' && <Maintenance />}
           {active === 'Messages' && <Messages />}
         </main>

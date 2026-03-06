@@ -17,6 +17,7 @@ const data = [
   { link: '', label: 'Carte', icon: IconMap },
   { link: '', label: 'Dashboard', icon: IconLayoutDashboard },
   { link: '', label: 'Maintenance', icon: IconTool },
+  { link: '', label: 'GymPlanner', icon: IconTool },
   { link: '', label: 'Messages', icon: IconMessage },
 ];
 
