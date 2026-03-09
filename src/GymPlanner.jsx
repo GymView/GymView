@@ -28,6 +28,7 @@ export default function GymPlanner() {
 
   const gridRef = useRef(null)
   const gridInstance = useRef(null)
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     // création de la grille
@@ -119,6 +120,61 @@ const saveLayout2 = () => {
   link.click()
   console.log("layout exporté :", json)
 }
+
+  // Appliquer un layout parsé (array of nodes)
+  const applyParsedLayout = (parsed) => {
+    if (!gridInstance.current) return
+    try {
+      // try to clear existing widgets if API available
+      if (typeof gridInstance.current.removeAll === 'function') {
+        gridInstance.current.removeAll()
+      }
+    } catch (e) {
+      // ignore
+    }
+    // load new layout
+    gridInstance.current.load(parsed)
+    // inject dataset values from parsed nodes into DOM elements
+    parsed.forEach((node) => {
+      const id = node.id || node.i || node.gsId
+      if (!id) return
+      const el = gridRef.current.querySelector(`[gs-id="${id}"]`)
+      if (!el) return
+      if (node.type) el.dataset.type = ('' + node.type).toLowerCase()
+      if (node.label) el.dataset.label = node.label
+      if (node.state) el.dataset.state = node.state
+    })
+    // rebuild DOM and persist
+    rebuildAllContents()
+    saveLayout()
+  }
+
+  // Handler pour le input file
+  const onFileInputChange = (e) => {
+    const file = e.target.files && e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const text = reader.result
+        const parsed = JSON.parse(text)
+        if (!Array.isArray(parsed)) {
+          console.warn('Imported layout should be an array of nodes')
+        }
+        applyParsedLayout(parsed)
+      } catch (err) {
+        console.error('Failed to parse layout file', err)
+        alert('Impossible de lire le fichier JSON : ' + err.message)
+      }
+    }
+    reader.readAsText(file)
+    // reset input so same file can be selected again if needed
+    e.target.value = ''
+  }
+
+  const openImportDialog = () => {
+    if (fileInputRef.current) fileInputRef.current.click()
+  }
   // Ajouter une nouvelle machine par défaut
   const addMachine = () => {
     const id = "machine-" + Date.now()
@@ -284,6 +340,10 @@ const saveLayout2 = () => {
         <button onClick={saveLayout2}>
 Exporter le layout
 </button>
+        <button onClick={openImportDialog} style={{ marginLeft: "10px" }}>
+          Importer le layout
+        </button>
+        <input ref={fileInputRef} type="file" accept="application/json" style={{ display: 'none' }} onChange={onFileInputChange} />
       </div>
       {/* Grille principale */}
       <div className="grid-stack" ref={gridRef}>
