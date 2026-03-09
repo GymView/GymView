@@ -45,6 +45,18 @@
   font-size: 14px;
 }
 
+.machine-form .type-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.machine-form .type-preview {
+  width: 28px;
+  height: 28px;
+  display: inline-block;
+}
+
 .machine-form .form-actions {
   display: flex;
   gap: 10px;
@@ -87,6 +99,15 @@
   justify-content:center;
   border-radius:8px;
   color:white;
+}
+
+.machine-icon {
+  width: 28px;
+  height: 28px;
+  margin-right: 8px;
+}
+.machine-label{
+  font-size:14px;
 }
 
 .machine-libre{
