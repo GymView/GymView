@@ -7,6 +7,7 @@ import {
   IconLayoutDashboard,
   IconSwitchHorizontal,
   IconMessage,
+  IconEdit,
 } from '@tabler/icons-react';
 import { Code, Group } from '@mantine/core';
 import classes from './NavbarSimple.module.css';

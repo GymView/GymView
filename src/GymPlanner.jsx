@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from "react"
 import { GridStack } from "gridstack"
 import "gridstack/dist/gridstack.min.css"
 import "./GymPlanner.css"
+import { GymApi } from "./ApiService"
+//import {GYM_ID, API_KEY} from "./SharedVar.jsx"
+const GYM_ID = 1;
+const API_KEY = "2A0kqbbVeniN25Ep7bjGvfyctG5SAopTaBZQY8yRPXk";
 
 // Charger dynamiquement les icônes SVG présentes dans src/assets/icons (Vite)
 const iconModules = import.meta.glob('./assets/icons/*.svg', { eager: true, as: 'url' })
@@ -101,6 +105,11 @@ export default function GymPlanner() {
         return copy
       })
       localStorage.setItem("gym-layout", JSON.stringify(cleaned))
+
+      console.log(JSON.stringify(cleaned))
+      
+      GymApi.updateMap(GYM_ID, API_KEY, cleaned)
+
       console.log("layout sauvegardé :", cleaned)
     } catch (err) {
       // fallback
