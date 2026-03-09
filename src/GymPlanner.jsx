@@ -4,8 +4,22 @@ import "gridstack/dist/gridstack.min.css"
 import "./GymPlanner.css"
 import { GymApi } from "./ApiService"
 //import {GYM_ID, API_KEY} from "./SharedVar.jsx"
+
+import { io } from "socket.io-client";
+
+// Définir l'URL de ton backend (à changer lors du déploiement sur Render)
+const SOCKET_URL = "http://localhost:8000"; 
+
+// 1. On initialise le socket en DEHORS du composant pour qu'il soit unique
+const socket = io(SOCKET_URL, {
+  transports: ["websocket"], // Force le websocket pour éviter les erreurs de polling
+  autoConnect: true
+});
+
 const GYM_ID = 1;
 const API_KEY = "2A0kqbbVeniN25Ep7bjGvfyctG5SAopTaBZQY8yRPXk";
+
+
 
 // Charger dynamiquement les icônes SVG présentes dans src/assets/icons (Vite)
 const iconModules = import.meta.glob('./assets/icons/*.svg', { eager: true, as: 'url' })
@@ -34,6 +48,47 @@ export default function GymPlanner() {
   const gridRef = useRef(null)
   const gridInstance = useRef(null)
   const fileInputRef = useRef(null)
+
+  
+useEffect(() => {
+  socket.on("machineUpdate", (data) => {
+    // data = { id: "Poulie_01", state: "utilise" }
+    console.log("Signal reçu pour :", data.gymview_id);
+
+    // 1. On cherche l'élément dans la grille qui possède cet ID unique
+    // ATTENTION : on utilise [data-gymviewid] (sans underscore pour éviter les bugs CSS)
+    const allItems = gridRef.current.querySelectorAll('.grid-stack-item');
+    let targetMachine = null;
+
+    // On boucle pour trouver la machine qui correspond (plus sûr que querySelector)
+    allItems.forEach(item => {
+      console.log(item.dataset.gymview_id)
+      if (item.dataset.gymview_id == String(data.gymview_id)) {
+        targetMachine = item;
+      }
+    });
+
+    if (targetMachine) {
+      const contentEl = targetMachine.querySelector(".grid-stack-item-content");
+      
+      // 2. Mise à jour visuelle immédiate (DOM)
+      if (contentEl) {
+        // Mise à jour de la classe CSS pour la couleur
+        contentEl.classList.remove("machine-libre", "machine-utilise", "machine-occupe");
+        contentEl.classList.add(`machine-${data.state}`);
+        
+        // Mise à jour du dataset interne pour la persistance
+        targetMachine.setAttribute('data-state', data.state);
+        
+        console.log(`✅ Machine ${data.gymview_id} mise à jour : ${data.state}`);
+      }
+    } else {
+      console.warn(`❌ Aucune machine trouvée avec l'ID : ${data.gymview_id}`);
+    }
+  });
+
+  return () => socket.off("machineUpdate");
+}, []);
 
   useEffect(() => {
     // création de la grille
