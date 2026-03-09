@@ -14,10 +14,10 @@ import myLogo from './assets/logo-v-zion.svg'; // Importation du fichier
 
 const data = [
   { link: '', label: 'Home', icon: IconHome },
-  { link: '', label: 'Carte', icon: IconMap },
+
   { link: '', label: 'Dashboard', icon: IconLayoutDashboard },
   { link: '', label: 'Maintenance', icon: IconTool },
-  { link: '', label: 'GymPlanner', icon: IconTool },
+  { link: '', label: 'Carte', icon: IconMap },
   { link: '', label: 'Messages', icon: IconMessage },
 ];
 
