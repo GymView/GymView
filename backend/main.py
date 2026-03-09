@@ -11,10 +11,10 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # L'URL de ton React
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["POST", "OPTIONS"],       # Autorise explicitement OPTIONS
-    allow_headers=["Content-Type", "X-API-Key"], # Autorise ton header personnalisé
+    allow_methods=["GET", "POST", "OPTIONS"], # AJOUTE "GET" ICI
+    allow_headers=["Content-Type", "X-API-Key"],
 )
 
 
@@ -61,47 +61,34 @@ def get_gym_map(gym_id: int, session: Session = Depends(get_session)):
 @app.post("/{gym_id}/update_map/")
 def update_gym_map(
     gym_id: int, 
-    new_machines: List[GymMap], # FastAPI valide automatiquement le JSON reçu
+    new_machines: List[GymMap], 
     x_api_key: str = Header(...), 
     session: Session = Depends(get_session)):
 
-    print(gym_id, new_machines, x_api_key)
-
-    
-    # AUTHENTIFICATION & VÉRIFICATION
-    statement = select(Gym).where(Gym.id == gym_id, Gym.api_key == x_api_key)
-    gym = session.exec(statement).first()
+    # 1. Vérification de la clé
+    # Note : Dans un vrai projet, on hacherait la clé ici comme vu précédemment
+    gym = session.exec(select(Gym).where(Gym.id == gym_id, Gym.api_key == x_api_key)).first()
     
     if not gym:
-        raise HTTPException(status_code=401, detail="Accès refusé : ID ou Clé API invalide")
+        raise HTTPException(status_code=401, detail="Clé API invalide")
     
-    # RÉCUPÉRATION DE L'EXISTANT
-    existing_machines_stmt = select(GymMap).where(GymMap.gym_id == gym_id)
-    existing_machines = session.exec(existing_machines_stmt).all()
-    
-    # On crée un dictionnaire pour un accès rapide par id_machine
-    # id_machine doit être ton identifiant unique métier côté React
-    existing_dict = {m.id_machine: m for m in existing_machines}
+    # 2. Nettoyage de l'existant pour cette salle uniquement
+    statement = select(GymMap).where(GymMap.gym_id == gym_id)
+    results = session.exec(statement)
+    for machine in results:
+        session.delete(machine)
 
-    
-    # LOGIQUE DE SYNCHRONISATION
-    
-    # Suppression de ce qui n'est plus dans la nouvelle liste
-    for machine_id, machine_obj in existing_dict.items():
-        session.delete(machine_obj)
-
-    # Ajout ou Mise à jour
+    # 3. Insertion des nouvelles machines
     for incoming in new_machines:
-        # CREATE : Nouvelle machine
-        new_db_item = GymMap(
-            **incoming.dict(), 
-            gym_id=gym_id
-        )
+        # On extrait les données, on force le gym_id, et on laisse SQLModel gérer
+        machine_data = incoming.dict()
+        machine_data["gym_id"] = gym_id  # Sécurité : on force l'ID de la salle
+        
+        new_db_item = GymMap(**machine_data)
         session.add(new_db_item)
     
-    # VALIDATION FINALE
     session.commit()
-    return {"status": "success", "message": f"Carte de la salle {gym_id} synchronisée."}
+    return {"status": "success", "message": "Carte synchronisée"}
 
 
 

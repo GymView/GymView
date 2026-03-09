@@ -5,7 +5,7 @@ import "./GymPlanner.css"
 import { GymApi } from "./ApiService"
 //import {GYM_ID, API_KEY} from "./SharedVar.jsx"
 const GYM_ID = 1;
-const API_KEY = "xRxFCNDIM-0-hpEeccfLo9Sy08M1kUAS5nQDx-Q6pqQ";
+const API_KEY = "2A0kqbbVeniN25Ep7bjGvfyctG5SAopTaBZQY8yRPXk";
 
 // Charger dynamiquement les icônes SVG présentes dans src/assets/icons (Vite)
 const iconModules = import.meta.glob('./assets/icons/*.svg', { eager: true, as: 'url' })
@@ -108,7 +108,7 @@ export default function GymPlanner() {
 
       console.log(JSON.stringify(cleaned))
       
-      GymApi.updateMap(GYM_ID, API_KEY, JSON.stringify(cleaned))
+      GymApi.updateMap(GYM_ID, API_KEY, cleaned)
 
       console.log("layout sauvegardé :", cleaned)
     } catch (err) {

@@ -20,15 +20,15 @@ engine = create_engine(
 # --- MODÈLES ---
 
 class GymMap(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: str = Field(default=None, primary_key=True)
     gym_id: int
-    id_machine: str
     x: int
     y: int
     w: int
     h: int
-    type: str
+    label: str
     state: str
+    type: str
 
 class Gym(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -64,8 +64,8 @@ def create_sample_data():
 
             new_map_element = GymMap(
                 gym_id=new_gym.id, 
-                id_machine="Poulie_01", 
-                x=10, y=20, w=100, h=15, state="Libre",
+                id="Poulie_01", 
+                x=10, y=20, w=100, h=1, state="libre", label="Test",
                 type="Zone cardio"
             )
             session.add(new_map_element)
