@@ -23,6 +23,7 @@ export default function GymPlanner() {
   const [selectedMachine, setSelectedMachine] = useState(null)
   // Nom temporaire en cours d'édition
   const [machineName, setMachineName] = useState("")
+  const [gymViewId, setGymViewId] = useState("")
   // État temporaire en cours d'édition (libre, utilise, occupe)
   const [machineState, setMachineState] = useState("libre")
   // Type de machine (id)
@@ -55,8 +56,10 @@ export default function GymPlanner() {
   setMachineName(labelEl ? labelEl.innerText : content.innerText)
       // Récupérer l'état actuel depuis l'attribut data-state ou dataset
       const currentState = item.dataset.state || "libre"
+      const currentGymviewId = item.dataset.gymview_id || ""
       const currentType = item.dataset.type || "treadmill"
       setMachineState(currentState)
+      setGymViewId(currentGymviewId)
       setMachineType(currentType)
     })
 
@@ -77,6 +80,7 @@ export default function GymPlanner() {
           if (node.type) el.dataset.type = ('' + node.type).toLowerCase()
           if (node.label) el.dataset.label = node.label
           if (node.state) el.dataset.state = node.state
+          if (node.gymview_id) el.dataset.gymview_id = node.gymview_id
         })
         // après chargement, reconstruire systématiquement le DOM interne des tuiles
         rebuildAllContents()
@@ -96,12 +100,14 @@ export default function GymPlanner() {
         const state = el?.dataset?.state || node.state || 'libre'
         const type = (el?.dataset?.type || node.type || DEFAULT_TYPE || '').toLowerCase()
         const label = el?.dataset?.label || ''
+        const gymview_id = el?.dataset?.gymview_id || node.gymview_id || ''
         // copy node but remove content
         const copy = { ...node }
         if ('content' in copy) delete copy.content
         copy.state = state
         copy.type = type
         if (label) copy.label = label
+        if (gymview_id) copy.gymview_id = gymview_id
         return copy
       })
       localStorage.setItem("gym-layout", JSON.stringify(cleaned))
@@ -203,6 +209,7 @@ const saveLayout2 = () => {
       w: 2,
       h: 2,
       id: id,
+      gymview_id:"",
       state: "libre",
       type: defaultType,
       content: defaultContent
@@ -213,6 +220,7 @@ const saveLayout2 = () => {
     if (machineEl) {
       // stocker l'état sur l'élément wrapper afin que save() le prenne en compte
       machineEl.dataset.state = "libre"
+      machineEl.dataset.gymview_id = ""
       machineEl.dataset.type = defaultType
       machineEl.dataset.label = 'Nouvelle machine'
       const contentEl = machineEl.querySelector(".grid-stack-item-content")
@@ -261,6 +269,7 @@ const saveLayout2 = () => {
     const oldState = machine.dataset.state || "libre"
     // stocker l'état dans dataset
     machine.dataset.state = machineState
+    machine.dataset.gymview_id = gymViewId
     // stocker le type
     machine.dataset.type = machineType
     // stocker le label pour une reconstruction fiable au reload
@@ -323,6 +332,8 @@ const saveLayout2 = () => {
       // persist normalized values back to dataset to keep consistency
       item.dataset.type = type
       item.dataset.label = label || ''
+      // preserve gym view id if present
+      item.dataset.gymview_id = item.dataset.gymview_id || ''
     })
   }
   const deleteMachine = () => {
@@ -379,6 +390,12 @@ Exporter le layout
               value={machineName}
               onChange={(e) => setMachineName(e.target.value)}
               placeholder="Nom de la machine"
+              className="form-input"
+            />
+            <input
+              value={gymViewId}
+              onChange={(e) => setGymViewId(e.target.value)}
+              placeholder="ID de la vue"
               className="form-input"
             />
             <select
