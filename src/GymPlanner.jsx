@@ -54,20 +54,35 @@ export default function GymPlanner() {
   // Ajouter une nouvelle machine par défaut
   const addMachine = () => {
     const id = "machine-" + Date.now()
+    // On ajoute le widget puis on met à jour le dataset et les classes
     gridInstance.current.addWidget({
       x: 0,
       y: 0,
       w: 2,
       h: 2,
       id: id,
-      state: "libre", // stocké dans dataset.state
-      // le contenu inclut les classes machine + state
+      // contenu initial : inclure déjà les classes visuelles
       content: `
-        <div class="grid-stack-item-content machine machine-libre">
+   
           Nouvelle machine
-        </div>
+     
       `
     })
+
+    // Récupérer l'élément ajouté et définir son état dans dataset (sur .grid-stack-item)
+    const machineEl = gridRef.current.querySelector(`[gs-id="${id}"]`)
+    if (machineEl) {
+      // stocker l'état sur l'élément wrapper afin que save() le prenne en compte
+      machineEl.dataset.state = "libre"
+      const contentEl = machineEl.querySelector(".grid-stack-item-content")
+      if (contentEl) {
+        // s'assurer des classes CSS
+        contentEl.classList.add("machine", "machine-libre")
+        if (!contentEl.innerText || contentEl.innerText.trim() === "") {
+          contentEl.innerText = "Nouvelle machine"
+        }
+      }
+    }
   }
 
   // Mettre à jour le nom et l'état de la machine sélectionnée
@@ -89,7 +104,15 @@ export default function GymPlanner() {
     // Fermer le formulaire
     setSelectedMachine(null)
   }
-
+  const deleteMachine = () => {
+    const machine = gridRef.current.querySelector(
+      `[gs-id="${selectedMachine}"]`
+    )
+    if (machine) {
+      gridInstance.current.removeWidget(machine)
+      setSelectedMachine(null)
+    }
+  }
   return (
     <>
       {/* Barre d'actions */}
@@ -119,23 +142,32 @@ export default function GymPlanner() {
       {selectedMachine && (
         <div className="machine-form">
           <h3>Modifier la machine</h3>
-          <input
-            value={machineName}
-            onChange={(e) => setMachineName(e.target.value)}
-            placeholder="Nom de la machine"
-          />
-          <select
-            value={machineState}
-            onChange={(e) => setMachineState(e.target.value)}
-            style={{ marginTop: "10px" }}
-          >
-            <option value="libre">Libre</option>
-            <option value="utilise">Utilisé</option>
-            <option value="occupe">Occupé</option>
-          </select>
-          <button onClick={updateMachine} style={{ marginTop: "10px" }}>
-            Enregistrer
-          </button>
+          <div className="form-fields">
+            <input
+              value={machineName}
+              onChange={(e) => setMachineName(e.target.value)}
+              placeholder="Nom de la machine"
+              className="form-input"
+            />
+            <select
+              value={machineState}
+              onChange={(e) => setMachineState(e.target.value)}
+              className="form-select"
+            >
+              <option value="libre">Libre</option>
+              <option value="utilise">Utilisé</option>
+              <option value="occupe">Occupé</option>
+            </select>
+          </div>
+
+          <div className="form-actions">
+            <button className="btn-save" onClick={updateMachine}>
+              Enregistrer
+            </button>
+            <button className="btn-delete" onClick={deleteMachine}>
+              Supprimer
+            </button>
+          </div>
         </div>
       )}
     </>
