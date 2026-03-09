@@ -138,7 +138,7 @@ def on_message(client, userdata, msg):
     except Exception as e:
         print(f"Erreur MQTT: {e}")
 
-db_states = ["libre", "utilisé", "occupé"]
+db_states = ["libre", "utilise", "occupe"]
 
 # Lancement du client MQTT au démarrage de FastAPI
 mqtt_client = mqtt.Client(transport="websockets") # HiveMQ Cloud utilise souvent TLS/Websockets

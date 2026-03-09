@@ -37,6 +37,7 @@ export default function GymPlanner() {
   const [selectedMachine, setSelectedMachine] = useState(null)
   // Nom temporaire en cours d'édition
   const [machineName, setMachineName] = useState("")
+  const [gymViewId, setGymViewId] = useState("")
   // État temporaire en cours d'édition (libre, utilise, occupe)
   const [machineState, setMachineState] = useState("libre")
   // Type de machine (id)
@@ -50,24 +51,44 @@ export default function GymPlanner() {
 
   
 useEffect(() => {
-  
-    socket.on("machineUpdate", (data) => {
+  socket.on("machineUpdate", (data) => {
+    // data = { id: "Poulie_01", state: "utilise" }
+    console.log("Signal reçu pour :", data.gymview_id);
 
-      console.log(data)
-      /*
-      // On met à jour l'état React proprement
-      setMachines((prevMachines) => 
-        prevMachines.map((m) => 
-          m.gymview_id === data.id ? { ...m, state: data.state } : m
-        )
-      );*/
+    // 1. On cherche l'élément dans la grille qui possède cet ID unique
+    // ATTENTION : on utilise [data-gymviewid] (sans underscore pour éviter les bugs CSS)
+    const allItems = gridRef.current.querySelectorAll('.grid-stack-item');
+    let targetMachine = null;
+
+    // On boucle pour trouver la machine qui correspond (plus sûr que querySelector)
+    allItems.forEach(item => {
+      console.log(item.dataset.gymview_id)
+      if (item.dataset.gymview_id == String(data.gymview_id)) {
+        targetMachine = item;
+      }
     });
 
-    // 3. NETTOYAGE : Très important pour éviter les fuites de mémoire
-    return () => {
-      socket.off("machineUpdate");
-    };
-  }, []);
+    if (targetMachine) {
+      const contentEl = targetMachine.querySelector(".grid-stack-item-content");
+      
+      // 2. Mise à jour visuelle immédiate (DOM)
+      if (contentEl) {
+        // Mise à jour de la classe CSS pour la couleur
+        contentEl.classList.remove("machine-libre", "machine-utilise", "machine-occupe");
+        contentEl.classList.add(`machine-${data.state}`);
+        
+        // Mise à jour du dataset interne pour la persistance
+        targetMachine.setAttribute('data-state', data.state);
+        
+        console.log(`✅ Machine ${data.gymview_id} mise à jour : ${data.state}`);
+      }
+    } else {
+      console.warn(`❌ Aucune machine trouvée avec l'ID : ${data.gymview_id}`);
+    }
+  });
+
+  return () => socket.off("machineUpdate");
+}, []);
 
   useEffect(() => {
     // création de la grille
@@ -90,8 +111,10 @@ useEffect(() => {
   setMachineName(labelEl ? labelEl.innerText : content.innerText)
       // Récupérer l'état actuel depuis l'attribut data-state ou dataset
       const currentState = item.dataset.state || "libre"
+      const currentGymviewId = item.dataset.gymview_id || ""
       const currentType = item.dataset.type || "treadmill"
       setMachineState(currentState)
+      setGymViewId(currentGymviewId)
       setMachineType(currentType)
     })
 
@@ -112,6 +135,7 @@ useEffect(() => {
           if (node.type) el.dataset.type = ('' + node.type).toLowerCase()
           if (node.label) el.dataset.label = node.label
           if (node.state) el.dataset.state = node.state
+          if (node.gymview_id) el.dataset.gymview_id = node.gymview_id
         })
         // après chargement, reconstruire systématiquement le DOM interne des tuiles
         rebuildAllContents()
@@ -131,12 +155,14 @@ useEffect(() => {
         const state = el?.dataset?.state || node.state || 'libre'
         const type = (el?.dataset?.type || node.type || DEFAULT_TYPE || '').toLowerCase()
         const label = el?.dataset?.label || ''
+        const gymview_id = el?.dataset?.gymview_id || node.gymview_id || ''
         // copy node but remove content
         const copy = { ...node }
         if ('content' in copy) delete copy.content
         copy.state = state
         copy.type = type
         if (label) copy.label = label
+        if (gymview_id) copy.gymview_id = gymview_id
         return copy
       })
       localStorage.setItem("gym-layout", JSON.stringify(cleaned))
@@ -238,6 +264,7 @@ const saveLayout2 = () => {
       w: 2,
       h: 2,
       id: id,
+      gymview_id:"",
       state: "libre",
       type: defaultType,
       content: defaultContent
@@ -248,6 +275,7 @@ const saveLayout2 = () => {
     if (machineEl) {
       // stocker l'état sur l'élément wrapper afin que save() le prenne en compte
       machineEl.dataset.state = "libre"
+      machineEl.dataset.gymview_id = ""
       machineEl.dataset.type = defaultType
       machineEl.dataset.label = 'Nouvelle machine'
       const contentEl = machineEl.querySelector(".grid-stack-item-content")
@@ -296,6 +324,7 @@ const saveLayout2 = () => {
     const oldState = machine.dataset.state || "libre"
     // stocker l'état dans dataset
     machine.dataset.state = machineState
+    machine.dataset.gymview_id = gymViewId
     // stocker le type
     machine.dataset.type = machineType
     // stocker le label pour une reconstruction fiable au reload
@@ -358,6 +387,8 @@ const saveLayout2 = () => {
       // persist normalized values back to dataset to keep consistency
       item.dataset.type = type
       item.dataset.label = label || ''
+      // preserve gym view id if present
+      item.dataset.gymview_id = item.dataset.gymview_id || ''
     })
   }
   const deleteMachine = () => {
@@ -414,6 +445,12 @@ Exporter le layout
               value={machineName}
               onChange={(e) => setMachineName(e.target.value)}
               placeholder="Nom de la machine"
+              className="form-input"
+            />
+            <input
+              value={gymViewId}
+              onChange={(e) => setGymViewId(e.target.value)}
+              placeholder="ID de la vue"
               className="form-input"
             />
             <select
