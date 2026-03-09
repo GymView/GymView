@@ -4,8 +4,22 @@ import "gridstack/dist/gridstack.min.css"
 import "./GymPlanner.css"
 import { GymApi } from "./ApiService"
 //import {GYM_ID, API_KEY} from "./SharedVar.jsx"
+
+import { io } from "socket.io-client";
+
+// Définir l'URL de ton backend (à changer lors du déploiement sur Render)
+const SOCKET_URL = "http://localhost:8000"; 
+
+// 1. On initialise le socket en DEHORS du composant pour qu'il soit unique
+const socket = io(SOCKET_URL, {
+  transports: ["websocket"], // Force le websocket pour éviter les erreurs de polling
+  autoConnect: true
+});
+
 const GYM_ID = 1;
 const API_KEY = "2A0kqbbVeniN25Ep7bjGvfyctG5SAopTaBZQY8yRPXk";
+
+
 
 // Charger dynamiquement les icônes SVG présentes dans src/assets/icons (Vite)
 const iconModules = import.meta.glob('./assets/icons/*.svg', { eager: true, as: 'url' })
@@ -33,6 +47,27 @@ export default function GymPlanner() {
   const gridRef = useRef(null)
   const gridInstance = useRef(null)
   const fileInputRef = useRef(null)
+
+  
+useEffect(() => {
+  
+    socket.on("machineUpdate", (data) => {
+
+      console.log(data)
+      /*
+      // On met à jour l'état React proprement
+      setMachines((prevMachines) => 
+        prevMachines.map((m) => 
+          m.gymview_id === data.id ? { ...m, state: data.state } : m
+        )
+      );*/
+    });
+
+    // 3. NETTOYAGE : Très important pour éviter les fuites de mémoire
+    return () => {
+      socket.off("machineUpdate");
+    };
+  }, []);
 
   useEffect(() => {
     // création de la grille

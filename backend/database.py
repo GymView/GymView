@@ -22,6 +22,7 @@ engine = create_engine(
 class GymMap(SQLModel, table=True):
     id: str = Field(default=None, primary_key=True)
     gym_id: int
+    gymview_id: int
     x: int
     y: int
     w: int
@@ -65,7 +66,7 @@ def create_sample_data():
             new_map_element = GymMap(
                 gym_id=new_gym.id, 
                 id="Poulie_01", 
-                x=10, y=20, w=100, h=1, state="libre", label="Test",
+                x=10, y=20, w=100, h=1, state="libre", label="Test", gymview_id=20,
                 type="Zone cardio"
             )
             session.add(new_map_element)
@@ -88,8 +89,9 @@ def get_all_machines_for_gym(gym_id: int) -> list[GymMap]:
         return session.exec(statement).all()
     
 
-# --- INITIALISATION AU DÉMARRAGE ---
-create_db_and_tables()
-create_sample_data()
+if __name__ == "__main__":
+    # --- INITIALISATION AU DÉMARRAGE ---
+    create_db_and_tables()
+    create_sample_data()
 
-print(get_all_machines_for_gym(1))
+    print(get_all_machines_for_gym(1))
