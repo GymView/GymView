@@ -27,9 +27,9 @@ export default function App() {
           backgroundColor: 'light-black'
           }}>
           {active === 'Home' && <Home /> }
-          {active === 'Carte' && <GymMap />}
+         
           {active === 'Dashboard' && <Dashboard />}
-          {active === 'GymPlanner' && <GymPlanner />}
+          {active === 'Carte' && <GymPlanner />}
           {active === 'Maintenance' && <Maintenance />}
           {active === 'Messages' && <Messages />}
         </main>
