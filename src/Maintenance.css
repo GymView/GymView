@@ -1,0 +1,41 @@
+.maintenance-container { padding: 30px; background: var(--bg-dark); color: white; }
+
+.maintenance-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.maintenance-table th, .maintenance-table td {
+  padding: 15px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.health-bar-bg {
+  width: 120px;
+  height: 8px;
+  background: var(--bg-input);
+  border-radius: 4px;
+}
+
+.health-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.text-alert { color: #e63946; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+
+.row-critical { background-color: rgba(230, 57, 70, 0.05); }
+
+.btn-maint {
+  background: var(--accent-primary);
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}

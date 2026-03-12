@@ -1,10 +1,11 @@
 
 
-
+from datetime import datetime
 import os
 from sqlmodel import SQLModel, create_engine, Session, Field, select
 from typing import Optional, List
 import secrets
+
 
 DATABASE_URL = "postgresql://neondb_owner:npg_Mi8HvP3GXAVK@ep-nameless-bread-al9czmiy-pooler.c-3.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
@@ -30,6 +31,13 @@ class GymMap(SQLModel, table=True):
     label: str
     state: str
     type: str
+
+    # --- Champs de Maintenance ---
+    total_minutes: int = Field(default=0)  # Temps total de vie
+    minutes_since_last_maint: int = Field(default=0) # Depuis le dernier reset
+    last_maintenance_date: Optional[datetime] = Field(default_factory=datetime.now)
+    first_usage: Optional[datetime] = Field(default_factory=datetime.now)
+    maintenance_threshold: int = Field(default=10000) # Seuil d'alerte (ex: 10k minutes)
 
 class Gym(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

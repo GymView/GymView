@@ -4,7 +4,7 @@ import { Navbar } from './Navbar';
 import { useState } from 'react';
 import Home from './Home';
 import GymMap from './GymMap';
-import Dashboard from './Dashboard';
+import Dashboard from './components/Dashboard';
 import Maintenance from './Maintenance';
 import Messages from './Messages';
 import GymPlanner from "./GymPlanner"
