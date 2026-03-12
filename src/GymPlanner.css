@@ -1,123 +1,205 @@
-.grid-stack {
-  background: #707371;
-  min-height: 600px;
-}
-
-.grid-stack-item-content {
+/* --- Thème Sombre Global --- */
+:root {
+  --bg-dark: #121212;
+  --bg-card: #1e1e1e;
+  --bg-input: #2d2d2d;
+  --text-main: #e0e0e0;
+  --text-muted: #b0b0b0;
+  --border-color: #333333;
+  --accent-primary: #375a7f;
   
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  height: 100%;
-  font-weight: bold;
+  /* Couleurs d'état adaptées au mode sombre */
+  --state-free: #1b4332;
+  --state-free-text: #b7e4c7;
+  --state-busy: #5c4d00;
+  --state-busy-text: #ffe066;
+  --state-occ: #660708;
+  --state-occ-text: #ffb3b3;
 }
 
-.machine-form {
-  position: fixed;
-  right: 20px;
-  top: 80px;
-  background: white;
+.planner-container {
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
 }
 
-.machine-form h3 {
-  margin: 0 0 10px 0;
-  font-size: 16px;
-  color: #333;
-}
-
-.machine-form .form-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 220px;
-}
-
-.machine-form .form-input,
-.machine-form .form-select {
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.machine-form .type-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.machine-form .type-preview {
-  width: 28px;
-  height: 28px;
-  display: inline-block;
-}
-
-.machine-form .form-actions {
+.controls {
+  margin-bottom: 20px;
   display: flex;
   gap: 10px;
-  margin-top: 12px;
 }
 
-.machine-form .form-actions button {
-  flex: 1;
-  padding: 8px 12px;
+.controls button {
+  padding: 10px 20px;
+  background-color: var(--accent-primary);
+  color: white;
   border: none;
   border-radius: 6px;
-  font-weight: 600;
   cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
 }
 
-.machine-form .btn-save {
-  background: #2ecc71;
-  color: white;
+.controls button:hover { filter: brightness(1.2); }
+
+/* --- Style des Machines (GridStack) --- */
+.grid-stack {
+  background: var(--bg-card);
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
 }
-
-.machine-form .btn-save:hover {
-  filter: brightness(0.95);
-}
-
-.machine-form .btn-delete {
-  background: #e74c3c;
-  color: white;
-}
-
-.machine-form .btn-delete:hover {
-  filter: brightness(0.95);
-}
-
-
 
 .machine {
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:8px;
-  color:white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px !important;
+  border: 2px solid transparent;
+  transition: transform 0.1s, box-shadow 0.2s;
+  padding: 10px;
+  text-align: center;
 }
 
 .machine-icon {
-  width: 28px;
-  height: 28px;
-  margin-right: 8px;
-}
-.machine-label{
-  font-size:14px;
-}
-
-.machine-libre{
-  background:#2ecc71;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  filter: invert(1); /* Pour rendre les icônes blanches */
+  pointer-events: none;
 }
 
-.machine-utilise{
-  background:#f39c12;
+.machine-label {
+  font-size: 0.9rem;
+  font-weight: bold;
+  pointer-events: none;
 }
 
-.machine-occupe{
-  background:#e74c3c;
+/* --- Couleurs selon l'état --- */
+.machine-libre { 
+  background-color: var(--state-free); 
+  border-color: #2d6a4f; 
+  color: var(--state-free-text); 
 }
+.machine-utilise { 
+  background-color: var(--state-busy); 
+  border-color: #857000; 
+  color: var(--state-busy-text); 
+}
+.machine-occupe { 
+  background-color: var(--state-occ); 
+  border-color: #a4161a; 
+  color: var(--state-occ-text); 
+}
+
+/* --- MODALE DE L'ÉDITEUR --- */
+.machine-editor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.machine-editor-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 450px;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  animation: modalIn 0.3s ease-out;
+}
+
+@keyframes modalIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  padding: 15px 20px;
+  background: var(--bg-input);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 { margin: 0; font-size: 1.2rem; color: var(--text-main); }
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.modal-body { padding: 20px; color: var(--text-main); }
+
+.form-group { margin-bottom: 15px; }
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--bg-input);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.icon-select-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.type-preview {
+  width: 32px;
+  height: 32px;
+  padding: 5px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  filter: invert(1);
+}
+
+.modal-actions {
+  padding: 15px 20px;
+  background: var(--bg-input);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+}
+
+.right-actions { display: flex; gap: 10px; }
+
+.btn-save { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-delete { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-cancel { background: #4a4a4a; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+.btn-save:hover { background: #218838; }
+.btn-delete:hover { background: #c82333; }

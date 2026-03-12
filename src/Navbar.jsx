@@ -24,7 +24,7 @@ const data = [
 
 export function Navbar( { updateActive } ) {
   const [active, setActive] = useState('Home');
-
+  
   updateActive(active)
 
   const links = data.map((item) => (
