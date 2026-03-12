@@ -79,30 +79,51 @@ def update_gym_map(
     x_api_key: str = Header(...), 
     session: Session = Depends(get_session)):
 
-    # 1. Vérification de la clé
-    # Note : Dans un vrai projet, on hacherait la clé ici comme vu précédemment
+    # 1. AUTHENTIFICATION
     gym = session.exec(select(Gym).where(Gym.id == gym_id, Gym.api_key == x_api_key)).first()
-    
     if not gym:
         raise HTTPException(status_code=401, detail="Clé API invalide")
     
-    # 2. Nettoyage de l'existant pour cette salle uniquement
-    statement = select(GymMap).where(GymMap.gym_id == gym_id)
-    results = session.exec(statement)
-    for machine in results:
-        session.delete(machine)
+    # 2. RÉCUPÉRATION DE L'EXISTANT
+    # On crée un dictionnaire { "id_gridstack": objet_db }
+    existing_machines = session.exec(select(GymMap).where(GymMap.gym_id == gym_id)).all()
+    existing_dict = {m.id: m for m in existing_machines}
+    
+    # On garde trace des IDs reçus pour savoir quoi supprimer à la fin
+    incoming_ids = {m.id for m in new_machines}
 
-    # 3. Insertion des nouvelles machines
+    # 3. SYNCHRONISATION (UPDATE OU INSERT)
     for incoming in new_machines:
-        # On extrait les données, on force le gym_id, et on laisse SQLModel gérer
-        machine_data = incoming.dict()
-        machine_data["gym_id"] = gym_id  # Sécurité : on force l'ID de la salle
-        
-        new_db_item = GymMap(**machine_data)
-        session.add(new_db_item)
+        if incoming.id in existing_dict:
+            # --- CAS : UPDATE ---
+            # La machine existe déjà, on ne met à jour QUE les champs visuels/position
+            # Cela préserve les champs 'total_minutes' et 'minutes_since_last_maint' !
+            db_machine = existing_dict[incoming.id]
+            
+            db_machine.gymview_id = incoming.gymview_id
+            db_machine.x = incoming.x
+            db_machine.y = incoming.y
+            db_machine.w = incoming.w
+            db_machine.h = incoming.h
+            db_machine.label = incoming.label
+            db_machine.state = incoming.state
+            db_machine.type = incoming.type
+            
+            session.add(db_machine)
+        else:
+            # --- CAS : INSERT ---
+            # Nouvelle machine ajoutée par le gérant
+            incoming.gym_id = gym_id
+            session.add(incoming)
+
+    # 4. NETTOYAGE (DELETE)
+    # Si une machine est en base mais n'est plus dans la liste reçue, on la supprime
+    for m_id, db_machine in existing_dict.items():
+        if m_id not in incoming_ids:
+            session.delete(db_machine)
     
     session.commit()
-    return {"status": "success", "message": "Carte synchronisée"}
+    return {"status": "success", "message": "Carte synchronisée avec succès (Maintenance préservée)"}
 
 
 

@@ -4,7 +4,7 @@ import { Navbar } from './Navbar';
 import { useState } from 'react';
 import Home from './Home';
 import GymMap from './GymMap';
-import Dashboard from './Dashboard';
+import Dashboard from './components/Dashboard';
 import Maintenance from './Maintenance';
 import Messages from './Messages';
 import GymPlanner from "./GymPlanner"
@@ -17,12 +17,11 @@ export default function App() {
     <MantineProvider defaultColorScheme="auto">
       <div style={{ display: 'flex' }}>
 
-        <Navbar updateActive = {setActive} />
+        <Navbar active={active} setActive = {setActive} />
 
         <main style={{ flex: 1, 
           display: 'flex', 
-          flexDirection: 'column', 
-          padding: '20px',
+          flexDirection: 'column',  
           width: '80vw',
           backgroundColor: 'light-black'
           }}>

@@ -18,7 +18,7 @@ export default function GymPlanner() {
   useMachineSocket(gridRef);
 
   useEffect(() => {
-    gridInstance.current = GridStack.init({ column: 12, cellHeight: 100, float: true }, gridRef.current);
+    gridInstance.current = GridStack.init({ column: 12, cellHeight: "auto", float: true }, gridRef.current);
 
     // Gestion de l'édition (Double Clic)
     gridRef.current.addEventListener("dblclick", (e) => {

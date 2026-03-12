@@ -51,10 +51,21 @@ export const GymApi = {
       throw error;
     }
   },
+  
+  resetMaintenance: async (machineId, apiKey) => {
+    const response = await fetch(`${BASE_URL}/reset_maintenance/${machineId}`, {
+      method: 'POST',
+      headers: { 'X-API-Key': apiKey }
+    });
+    if (!response.ok) throw new Error("Échec du reset maintenance");
+    return await response.json();
+  },
 
   // Récupérer toutes les salles
   getAllGyms: async () => {
     const response = await fetch(`${BASE_URL}/gym_map/`);
     return await response.json();
   }
+
+
 };
