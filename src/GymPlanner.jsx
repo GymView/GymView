@@ -52,17 +52,13 @@ export default function GymPlanner() {
   
 useEffect(() => {
   socket.on("machineUpdate", (data) => {
-    // data = { id: "Poulie_01", state: "utilise" }
-    console.log("Signal reçu pour :", data.gymview_id);
-
-    // 1. On cherche l'élément dans la grille qui possède cet ID unique
-    // ATTENTION : on utilise [data-gymviewid] (sans underscore pour éviter les bugs CSS)
+    
     const allItems = gridRef.current.querySelectorAll('.grid-stack-item');
     let targetMachine = null;
 
-    // On boucle pour trouver la machine qui correspond (plus sûr que querySelector)
+    // On boucle pour trouver la machine qui correspond
     allItems.forEach(item => {
-      console.log(item.dataset.gymview_id)
+      
       if (item.dataset.gymview_id == String(data.gymview_id)) {
         targetMachine = item;
       }
@@ -71,7 +67,7 @@ useEffect(() => {
     if (targetMachine) {
       const contentEl = targetMachine.querySelector(".grid-stack-item-content");
       
-      // 2. Mise à jour visuelle immédiate (DOM)
+      
       if (contentEl) {
         // Mise à jour de la classe CSS pour la couleur
         contentEl.classList.remove("machine-libre", "machine-utilise", "machine-occupe");
@@ -80,10 +76,10 @@ useEffect(() => {
         // Mise à jour du dataset interne pour la persistance
         targetMachine.setAttribute('data-state', data.state);
         
-        console.log(`✅ Machine ${data.gymview_id} mise à jour : ${data.state}`);
+        console.log(`Machine ${data.gymview_id} mise à jour : ${data.state}`);
       }
     } else {
-      console.warn(`❌ Aucune machine trouvée avec l'ID : ${data.gymview_id}`);
+      console.warn(`Aucune machine trouvée avec l'ID : ${data.gymview_id}`);
     }
   });
 

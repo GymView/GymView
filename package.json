@@ -38,11 +38,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "recharts": "^3.7.0",
-<<<<<<< HEAD
     "socket.io-client": "^4.8.3"
-=======
-    "socketio": "^1.0.0"
->>>>>>> 71ec48a3988cc0eb028a8c3478af22bef6ccf7cf
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
