@@ -21,8 +21,7 @@ export default function App() {
 
         <main style={{ flex: 1, 
           display: 'flex', 
-          flexDirection: 'column', 
-          padding: '20px',
+          flexDirection: 'column',  
           width: '80vw',
           backgroundColor: 'light-black'
           }}>

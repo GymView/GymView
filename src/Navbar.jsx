@@ -51,7 +51,7 @@ export function Navbar( { active, setActive } ) {
             alt="Logo Gym" 
             style={{ height: 50, width: 'auto'}}
           />
-          <Code fw={700}>v3.1.2</Code>
+          <Code fw={700}>v1.0.0</Code>
         </Group>
         <br />
         {links}
