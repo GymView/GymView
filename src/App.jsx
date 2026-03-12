@@ -17,7 +17,7 @@ export default function App() {
     <MantineProvider defaultColorScheme="auto">
       <div style={{ display: 'flex' }}>
 
-        <Navbar updateActive = {setActive} />
+        <Navbar active={active} setActive = {setActive} />
 
         <main style={{ flex: 1, 
           display: 'flex', 

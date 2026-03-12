@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   IconHome,
   IconMap,
@@ -11,21 +11,19 @@ import {
 } from '@tabler/icons-react';
 import { Code, Group } from '@mantine/core';
 import classes from './NavbarSimple.module.css';
-import myLogo from './assets/logo-v-zion.svg'; // Importation du fichier
+import myLogo from './assets/logo-v-zion.svg';
 
 const data = [
   { link: '', label: 'Home', icon: IconHome },
-
   { link: '', label: 'Dashboard', icon: IconLayoutDashboard },
   { link: '', label: 'Maintenance', icon: IconTool },
   { link: '', label: 'Carte', icon: IconMap },
   { link: '', label: 'Messages', icon: IconMessage },
 ];
 
-export function Navbar( { updateActive } ) {
-  const [active, setActive] = useState('Home');
+export function Navbar( { active, setActive } ) {
+  //const [active, setActive] = useState('Home');
   
-  updateActive(active)
 
   const links = data.map((item) => (
     <a
