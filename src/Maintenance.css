@@ -1,23 +1,51 @@
-.maintenance-container { padding: 30px; background: var(--bg-dark); color: white; }
+/* --- Maintenance — DA GymView --- */
+
+.maintenance-container {
+  padding: 30px;
+  background: var(--bg-primary);
+  color: var(--text-main);
+  font-family: 'Poppins', sans-serif;
+}
 
 .maintenance-table {
   width: 100%;
   border-collapse: collapse;
   background: var(--bg-card);
-  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
   overflow: hidden;
 }
 
-.maintenance-table th, .maintenance-table td {
-  padding: 15px 20px;
+.maintenance-table th {
+  padding: 14px 20px;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  background: rgba(0, 230, 118, 0.04);
+}
+
+.maintenance-table td {
+  padding: 14px 20px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.maintenance-table tr:last-child td {
+  border-bottom: none;
+}
+
+.maintenance-table tr:hover td {
+  background: rgba(0, 230, 118, 0.03);
 }
 
 .health-bar-bg {
   width: 120px;
   height: 8px;
-  background: var(--bg-input);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 4px;
 }
 
@@ -27,15 +55,31 @@
   transition: width 0.5s ease;
 }
 
-.text-alert { color: #e63946; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+.text-alert {
+  color: #ff6b6b;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
 
-.row-critical { background-color: rgba(230, 57, 70, 0.05); }
+.row-critical {
+  background-color: rgba(230, 57, 70, 0.04);
+}
 
 .btn-maint {
-  background: var(--accent-primary);
-  border: none;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 4px;
+  background: rgba(0, 230, 118, 0.12);
+  border: 1px solid rgba(0, 230, 118, 0.25);
+  color: var(--accent-primary);
+  padding: 6px 14px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-maint:hover {
+  background: rgba(0, 230, 118, 0.2);
+  box-shadow: 0 4px 16px var(--accent-glow);
 }

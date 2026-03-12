@@ -1,16 +1,24 @@
+/* --- Navbar horizontale — DA GymView --- */
+
 .main-navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 30px;
   height: 70px;
-  background-color: #1e1e1e;
-  border-bottom: 1px solid #333;
+  background-color: rgba(4, 15, 26, 0.92);
+  border-bottom: 1px solid rgba(0, 230, 118, 0.1);
   color: white;
+  backdrop-filter: blur(14px);
 }
 
 .nav-logo { font-weight: 800; font-size: 1.4rem; letter-spacing: 1px; }
-.nav-logo span { color: #375a7f; }
+.nav-logo span {
+  background: linear-gradient(90deg, #fff 40%, #00e676);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
 .nav-links { display: flex; gap: 30px; }
 
@@ -19,25 +27,25 @@
   align-items: center;
   gap: 8px;
   text-decoration: none;
-  color: #b0b0b0;
+  color: #a0b8cc;
   font-weight: 500;
   transition: color 0.2s;
 }
 
-.nav-item:hover, .nav-item.active { color: #375a7f; }
+.nav-item:hover, .nav-item.active { color: #00e676; }
 
 .nav-status {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 0.8rem;
-  color: #b0b0b0;
+  color: #a0b8cc;
 }
 
 .status-indicator.online {
   width: 8px;
   height: 8px;
-  background-color: #2a9d8f;
+  background-color: #00e676;
   border-radius: 50%;
-  box-shadow: 0 0 8px #2a9d8f;
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.6);
 }

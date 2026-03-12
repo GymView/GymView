@@ -1,26 +1,9 @@
-/* --- Thème Sombre Global --- */
-:root {
-  --bg-dark: #121212;
-  --bg-card: #1e1e1e;
-  --bg-input: #2d2d2d;
-  --text-main: #e0e0e0;
-  --text-muted: #b0b0b0;
-  --border-color: #333333;
-  --accent-primary: #375a7f;
-  
-  /* Couleurs d'état adaptées au mode sombre */
-  --state-free: #1b4332;
-  --state-free-text: #b7e4c7;
-  --state-busy: #5c4d00;
-  --state-busy-text: #ffe066;
-  --state-occ: #660708;
-  --state-occ-text: #ffb3b3;
-}
+/* --- GymPlanner — DA GymView --- */
 
 .planner-container {
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--bg-dark);
+  padding: 24px;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-primary);
   color: var(--text-main);
   min-height: 100vh;
 }
@@ -34,21 +17,25 @@
 .controls button {
   padding: 10px 20px;
   background-color: var(--accent-primary);
-  color: white;
+  color: var(--bg-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
-  transition: background 0.2s;
+  font-family: 'Poppins', sans-serif;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.controls button:hover { filter: brightness(1.2); }
+.controls button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--accent-glow);
+}
 
-/* --- Style des Machines (GridStack) --- */
+/* --- Grid GridStack --- */
 .grid-stack {
   background: var(--bg-card);
-  border: 2px dashed var(--border-color);
-  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
 }
 
 .machine {
@@ -56,113 +43,130 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 8px !important;
-  border: 2px solid transparent;
-  transition: transform 0.1s, box-shadow 0.2s;
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 230, 118, 0.2);
+  transition: transform 0.15s, box-shadow 0.2s;
   padding: 10px;
   text-align: center;
+}
+
+.machine:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .machine-icon {
   width: 40px;
   height: 40px;
   margin-bottom: 8px;
-  filter: invert(1); /* Pour rendre les icônes blanches */
+  filter: invert(1);
   pointer-events: none;
 }
 
 .machine-label {
-  font-size: 0.9rem;
-  font-weight: bold;
+  font-size: 0.85rem;
+  font-weight: 600;
   pointer-events: none;
 }
 
-/* --- Couleurs selon l'état --- */
-.machine-libre { 
-  background-color: var(--state-free); 
-  border-color: #2d6a4f; 
-  color: var(--state-free-text); 
+/* --- Couleurs état --- */
+.machine-libre {
+  background-color: var(--state-free);
+  border-color: #2d6a4f;
+  color: var(--state-free-text);
 }
-.machine-utilise { 
-  background-color: var(--state-busy); 
-  border-color: #857000; 
-  color: var(--state-busy-text); 
+.machine-utilise {
+  background-color: var(--state-busy);
+  border-color: #857000;
+  color: var(--state-busy-text);
 }
-.machine-occupe { 
-  background-color: var(--state-occ); 
-  border-color: #a4161a; 
-  color: var(--state-occ-text); 
+.machine-occupe {
+  background-color: var(--state-occ);
+  border-color: #a4161a;
+  color: var(--state-occ-text);
 }
 
-/* --- MODALE DE L'ÉDITEUR --- */
+/* --- Modale --- */
 .machine-editor-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(4, 15, 26, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
 }
 
 .machine-editor-modal {
-  background: var(--bg-card);
+  background: #07203a;
   border: 1px solid var(--border-color);
   width: 100%;
   max-width: 450px;
-  border-radius: 12px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px var(--accent-glow);
   overflow: hidden;
   animation: modalIn 0.3s ease-out;
 }
 
 @keyframes modalIn {
-  from { transform: translateY(20px); opacity: 0; }
+  from { transform: translateY(24px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
 .modal-header {
-  padding: 15px 20px;
-  background: var(--bg-input);
+  padding: 16px 20px;
+  background: rgba(0, 230, 118, 0.06);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.modal-header h3 { margin: 0; font-size: 1.2rem; color: var(--text-main); }
+.modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); font-weight: 600; }
 
 .btn-close {
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   cursor: pointer;
   color: var(--text-muted);
+  transition: color 0.2s;
 }
+.btn-close:hover { color: var(--accent-primary); }
 
 .modal-body { padding: 20px; color: var(--text-main); }
 
 .form-group { margin-bottom: 15px; }
 .form-group label {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .form-group input, .form-group select {
   width: 100%;
-  padding: 10px;
+  padding: 10px 12px;
   background-color: var(--bg-input);
   color: var(--text-main);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: 'Poppins', sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.1);
 }
 
 .form-row {
@@ -183,13 +187,13 @@
   padding: 5px;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 6px;
   filter: invert(1);
 }
 
 .modal-actions {
   padding: 15px 20px;
-  background: var(--bg-input);
+  background: rgba(0, 230, 118, 0.04);
   border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
@@ -197,9 +201,44 @@
 
 .right-actions { display: flex; gap: 10px; }
 
-.btn-save { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-.btn-delete { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-.btn-cancel { background: #4a4a4a; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-save {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--accent-glow);
+}
 
-.btn-save:hover { background: #218838; }
-.btn-delete:hover { background: #c82333; }
+.btn-delete {
+  background: rgba(220, 53, 69, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.2s;
+}
+.btn-delete:hover { background: rgba(220, 53, 69, 0.25); }
+
+.btn-cancel {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.2s;
+}
+.btn-cancel:hover { background: rgba(255, 255, 255, 0.1); }
