@@ -22,7 +22,7 @@ engine = create_engine(
 class GymMap(SQLModel, table=True):
     id: str = Field(default=None, primary_key=True)
     gym_id: int
-    gymview_id: int
+    gymview_id: Optional[str] = Field(default="", index=True)
     x: int
     y: int
     w: int
