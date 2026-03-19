@@ -121,14 +121,14 @@ export default function Dashboard() {
       value: `${rate}%`,
       sub: `${inUse} machine${inUse > 1 ? 's' : ''} actives / ${total}`,
       color: rate > 80 ? '#ff6b6b' : rate > 50 ? '#ffe066' : '#00e676',
-    },
+    },/*
     {
       icon: <Dumbbell size={20} />,
       label: 'Libres maintenant',
       value: libre,
       sub: `${occupe} occupées · ${utilise} en cours`,
       color: '#00e676',
-    },
+    },*/
     {
       icon: <Heart size={20} />,
       label: 'Santé moyenne',
