@@ -1,10 +1,7 @@
 const BASE_URL = "http://localhost:8000";
 
-
-
-
 export const GymApi = {
-  
+
   // Récupère la carte d'une salle
   fetchMap: async (gymId) => {
     try {
@@ -41,7 +38,7 @@ export const GymApi = {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Erreur lors de la mise à jour");
       }
-      
+
       const result = await response.json();
       console.log("Réponse du serveur :", result);
 
@@ -51,7 +48,7 @@ export const GymApi = {
       throw error;
     }
   },
-  
+
   resetMaintenance: async (machineId, apiKey) => {
     const response = await fetch(`${BASE_URL}/reset_maintenance/${machineId}`, {
       method: 'POST',
@@ -66,6 +63,5 @@ export const GymApi = {
     const response = await fetch(`${BASE_URL}/gym_map/`);
     return await response.json();
   }
-
 
 };

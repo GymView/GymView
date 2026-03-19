@@ -4,21 +4,22 @@ import { CONFIG } from "../constants/config";
 
 const socket = io(CONFIG.SOCKET_URL, { transports: ["websocket"] });
 
-export const useMachineSocket = (gridRef) => {
+export const useMachineSocket = (gridRef, onUpdate) => {
   useEffect(() => {
     socket.on("machineUpdate", (data) => {
       if (!gridRef.current) return;
 
       const machineEl = gridRef.current.querySelector(`[data-gymviewid="${data.gymview_id}"]`);
-      
+
       if (machineEl) {
         const content = machineEl.querySelector(".grid-stack-item-content");
         content.classList.remove("machine-libre", "machine-utilise", "machine-occupe");
         content.classList.add(`machine-${data.state}`);
         machineEl.dataset.state = data.state;
+        if (onUpdate) onUpdate();
       }
     });
 
     return () => socket.off("machineUpdate");
-  }, [gridRef]);
+  }, [gridRef, onUpdate]);
 };

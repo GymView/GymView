@@ -11,7 +11,7 @@ import {
 } from '@tabler/icons-react';
 import { Code, Group } from '@mantine/core';
 import classes from './NavbarSimple.module.css';
-import myLogo from './assets/logo-v-zion.svg';
+import myLogo from '../assets/logo-v-zion.svg';
 
 const data = [
   { link: '', label: 'Home', icon: IconHome },
@@ -22,9 +22,6 @@ const data = [
 ];
 
 export function Navbar( { active, setActive } ) {
-  //const [active, setActive] = useState('Home');
-  
-
   const links = data.map((item) => (
     <a
       className={classes.link}
@@ -46,9 +43,9 @@ export function Navbar( { active, setActive } ) {
         <br />
       <div className={classes.navbarMain}>
         <Group className={classes.header} justify="space-between">
-          <img 
-            src={myLogo} 
-            alt="Logo Gym" 
+          <img
+            src={myLogo}
+            alt="Logo Gym"
             style={{ height: 50, width: 'auto'}}
           />
           <Code fw={700}>v1.0.0</Code>

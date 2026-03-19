@@ -1,13 +1,12 @@
 import { MantineProvider, createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
-import { Navbar } from './Navbar';
+import { Navbar } from './components/Navbar';
 import { useState } from 'react';
-import Home from './Home';
-import GymMap from './GymMap';
-import Dashboard from './components/Dashboard';
-import Maintenance from './Maintenance';
-import Messages from './Messages';
-import GymPlanner from "./GymPlanner"
+import Home from './pages/Home/Home';
+import Dashboard from './pages/Dashboard/Dashboard';
+import Maintenance from './pages/Maintenance/Maintenance';
+import Messages from './pages/Messages/Messages';
+import GymPlanner from './pages/GymPlanner/GymPlanner';
 
 const theme = createTheme({
   fontFamily: 'Poppins, sans-serif',
