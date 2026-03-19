@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+  <!-- Base rail -->
+  <line x1="2" y1="22" x2="22" y2="22" stroke="#333" stroke-width="2"/>
+  <!-- Inclined main frame -->
+  <line x1="4" y1="22" x2="20" y2="5" stroke="#333"/>
+  <!-- Footplate (inclined) -->
+  <rect x="16" y="4" width="6" height="5" rx="1" fill="#222" stroke="#333" transform="rotate(-45 19 6.5)"/>
+  <!-- Weight plates on footplate -->
+  <rect x="18" y="4" width="2" height="6" rx="0.5" fill="#fff" transform="rotate(-45 19 7)"/>
+  <!-- Seat back -->
+  <rect x="2" y="16" width="3" height="5" rx="1" fill="#222" stroke="#333"/>
+  <!-- Seat base -->
+  <rect x="2" y="19" width="8" height="2" rx="1" fill="#222" stroke="#333"/>
+  <!-- Left support -->
+  <line x1="4" y1="22" x2="3" y2="22" stroke="#333"/>
+</svg>

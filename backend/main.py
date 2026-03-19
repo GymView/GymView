@@ -1,188 +1,266 @@
 import socketio
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Depends, Header
-from sqlmodel import Session, select
+from sqlmodel import Session, select, SQLModel
 from database import *
-from fastapi import HTTPException, Depends
-from typing import List
-
+from typing import List, Optional
+from datetime import datetime
+from pydantic import BaseModel
 
 import paho.mqtt.client as mqtt
 import json
 import asyncio
 
-# --- CONFIGURATION HIVEMQ ---
+# ── Configuration MQTT ────────────────────────────────────────
 MQTT_BROKER = "63e7b293201e4bc7ab8e7c6e15b536d4.s1.eu.hivemq.cloud"
-MQTT_PORT = 8884
-MQTT_USER = "backend"
-MQTT_PASS = "Backend_pswd1"
-MQTT_TOPIC = "1"
+MQTT_PORT   = 8884
+MQTT_USER   = "backend"
+MQTT_PASS   = "Backend_pswd1"
+MQTT_TOPIC  = "1"
 
-
-
-app = FastAPI()
+# ── Application FastAPI ───────────────────────────────────────
+app = FastAPI(title="GymView API")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"], # AJOUTE "GET" ICI
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "X-API-Key"],
 )
 
-
-# 1. Initialisation du serveur Socket.io (Asynchrone)
-sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins="*")
-
-# 2. Liaison de Socket.io à FastAPI
-# Cela crée une application "hybride" qui gère l'API et les WebSockets
+# ── Socket.io ─────────────────────────────────────────────────
+sio        = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins="*")
 socket_app = socketio.ASGIApp(sio, app)
 
-
-
-# 3. Événements Socket.io
 @sio.event
 async def connect(sid, environ):
-    print(f"Client connecté : {sid}")
+    print(f"[WS] Client connecté : {sid}")
 
 @sio.event
 async def disconnect(sid):
-    print(f"Client déconnecté : {sid}")
+    print(f"[WS] Client déconnecté : {sid}")
 
 
-"""
-# 4. Route API qui reçoit les infos de l'ESP32
-@app.post("/api/update-machine")
-async def update_machine(data: dict):
-    # Logique : On reçoit du JSON, on le traite...
-    print(f"Données reçues : {data}")
-    
-    # ... et on le POUSSE immédiatement vers le React
-    await sio.emit('machineUpdate', data)
-    
-    return {"status": "ok"}
-"""
+# ── Schéma d'entrée pour update_map ──────────────────────────
+# Schéma Pydantic séparé pour éviter les conflits avec le modèle SQLModel table.
+# Il n'inclut pas les champs de maintenance (préservés côté DB).
+class MachineInput(BaseModel):
+    id:          str
+    x:           int
+    y:           int
+    w:           int
+    h:           int
+    gym_id:      Optional[int] = None
+    gymview_id:  str           = ""
+    state:       str           = "libre"
+    type:        str           = "treadmill"
+    label:       str           = "Machine"
 
 
-# Communication avec les données de la salle
+# ── Routes ───────────────────────────────────────────────────
+
+@app.get("/gym_map/")
+def get_all_gyms(session: Session = Depends(get_session)):
+    """Retourne toutes les salles (sans la clé API)."""
+    gyms = session.exec(select(Gym)).all()
+    return [{"id": g.id, "name": g.name, "description": g.description} for g in gyms]
+
+
+@app.get("/gym/{gym_id}")
+def get_gym_info(gym_id: int, session: Session = Depends(get_session)):
+    """Retourne les infos d'une salle, clé API incluse (usage admin/développement)."""
+    gym = session.get(Gym, gym_id)
+    if not gym:
+        raise HTTPException(status_code=404, detail="Salle non trouvée")
+    return gym
+
+
+@app.get("/{gym_id}/get_map")
 @app.get("/{gym_id}/get_map/")
 def get_gym_map(gym_id: int, session: Session = Depends(get_session)):
-    statement = select(GymMap).where(GymMap.gym_id == gym_id)
-    machines = session.exec(statement).all()
+    """Retourne toutes les machines d'une salle."""
+    machines = session.exec(select(GymMap).where(GymMap.gym_id == gym_id)).all()
     return machines
+
 
 @app.post("/{gym_id}/update_map/")
 def update_gym_map(
-    gym_id: int, 
-    new_machines: List[GymMap], 
-    x_api_key: str = Header(...), 
-    session: Session = Depends(get_session)):
-
-    # 1. AUTHENTIFICATION
-    gym = session.exec(select(Gym).where(Gym.id == gym_id, Gym.api_key == x_api_key)).first()
+    gym_id:       int,
+    new_machines: List[MachineInput],
+    x_api_key:    str = Header(...),
+    session:      Session = Depends(get_session),
+):
+    """
+    Synchronise la carte de la salle.
+    - Crée les nouvelles machines.
+    - Met à jour position/label/état des machines existantes.
+    - Supprime les machines retirées.
+    - Préserve les données de maintenance (total_minutes, etc.).
+    """
+    # 1. Authentification
+    gym = session.exec(
+        select(Gym).where(Gym.id == gym_id, Gym.api_key == x_api_key)
+    ).first()
     if not gym:
         raise HTTPException(status_code=401, detail="Clé API invalide")
-    
-    # 2. RÉCUPÉRATION DE L'EXISTANT
-    # On crée un dictionnaire { "id_gridstack": objet_db }
-    existing_machines = session.exec(select(GymMap).where(GymMap.gym_id == gym_id)).all()
-    existing_dict = {m.id: m for m in existing_machines}
-    
-    # On garde trace des IDs reçus pour savoir quoi supprimer à la fin
-    incoming_ids = {m.id for m in new_machines}
 
-    # 3. SYNCHRONISATION (UPDATE OU INSERT)
+    # 2. Récupération de l'existant
+    existing = session.exec(select(GymMap).where(GymMap.gym_id == gym_id)).all()
+    existing_dict = {m.id: m for m in existing}
+    incoming_ids  = {m.id for m in new_machines}
+
+    # 3. Synchronisation (UPDATE ou INSERT)
     for incoming in new_machines:
         if incoming.id in existing_dict:
-            # --- CAS : UPDATE ---
-            # La machine existe déjà, on ne met à jour QUE les champs visuels/position
-            # Cela préserve les champs 'total_minutes' et 'minutes_since_last_maint' !
-            db_machine = existing_dict[incoming.id]
-            
-            db_machine.gymview_id = incoming.gymview_id
-            db_machine.x = incoming.x
-            db_machine.y = incoming.y
-            db_machine.w = incoming.w
-            db_machine.h = incoming.h
-            db_machine.label = incoming.label
-            db_machine.state = incoming.state
-            db_machine.type = incoming.type
-            
-            session.add(db_machine)
+            # UPDATE — on ne touche pas aux champs maintenance
+            db_m = existing_dict[incoming.id]
+            db_m.gymview_id = incoming.gymview_id
+            db_m.x     = incoming.x
+            db_m.y     = incoming.y
+            db_m.w     = incoming.w
+            db_m.h     = incoming.h
+            db_m.label = incoming.label
+            db_m.state = incoming.state
+            db_m.type  = incoming.type
+            session.add(db_m)
         else:
-            # --- CAS : INSERT ---
-            # Nouvelle machine ajoutée par le gérant
-            incoming.gym_id = gym_id
-            session.add(incoming)
+            # INSERT — nouvelle machine avec valeurs de maintenance par défaut
+            new_m = GymMap(
+                id         = incoming.id,
+                gym_id     = gym_id,
+                gymview_id = incoming.gymview_id,
+                x     = incoming.x,
+                y     = incoming.y,
+                w     = incoming.w,
+                h     = incoming.h,
+                label = incoming.label,
+                state = incoming.state,
+                type  = incoming.type,
+            )
+            session.add(new_m)
 
-    # 4. NETTOYAGE (DELETE)
-    # Si une machine est en base mais n'est plus dans la liste reçue, on la supprime
-    for m_id, db_machine in existing_dict.items():
+    # 4. Suppression des machines retirées de la carte
+    for m_id, db_m in existing_dict.items():
         if m_id not in incoming_ids:
-            session.delete(db_machine)
-    
+            session.delete(db_m)
+
     session.commit()
-    return {"status": "success", "message": "Carte synchronisée avec succès (Maintenance préservée)"}
+    return {"status": "success", "message": "Carte synchronisée avec succès"}
 
 
+@app.post("/reset_maintenance/{machine_id}")
+def reset_maintenance(
+    machine_id: str,
+    x_api_key:  str = Header(...),
+    session:    Session = Depends(get_session),
+):
+    """Remet à zéro le compteur de maintenance d'une machine."""
+    machine = session.get(GymMap, machine_id)
+    if not machine:
+        raise HTTPException(status_code=404, detail="Machine non trouvée")
 
-# Gestion MQTT
+    # Vérifie la clé API de la salle de la machine
+    gym = session.exec(
+        select(Gym).where(Gym.id == machine.gym_id, Gym.api_key == x_api_key)
+    ).first()
+    if not gym:
+        raise HTTPException(status_code=401, detail="Clé API invalide")
 
-last_db_states = {} # update que si la dernière valeur est différente
+    machine.minutes_since_last_maint = 0
+    machine.last_maintenance_date    = datetime.now()
+    session.add(machine)
+    session.commit()
+    session.refresh(machine)
+    return machine
 
+
+# ── Suivi d'usage MQTT ────────────────────────────────────────
+db_states          = ["libre", "utilise", "occupe"]
+machine_active_since: dict[str, datetime] = {}  # gymview_id -> heure d'activation
+last_db_states:      dict[str, str]       = {}  # gymview_id -> dernier état DB
+
+def update_machine_in_db(gymview_id: str, new_state: str):
+    """
+    Met à jour l'état d'une machine dans la DB.
+    Incrémente total_minutes et minutes_since_last_maint quand la machine
+    passe de actif (utilise/occupe) à libre.
+    """
+    with Session(engine) as session:
+        machine = session.exec(
+            select(GymMap).where(GymMap.gymview_id == gymview_id)
+        ).first()
+
+        if not machine:
+            print(f"[MQTT] Machine inconnue : gymview_id={gymview_id}")
+            return
+
+        now = datetime.now()
+
+        # Machine qui redevient libre → on comptabilise le temps d'usage
+        if new_state == "libre" and gymview_id in machine_active_since:
+            elapsed_min = int((now - machine_active_since.pop(gymview_id)).total_seconds() / 60)
+            if elapsed_min > 0:
+                machine.total_minutes            += elapsed_min
+                machine.minutes_since_last_maint += elapsed_min
+                print(f"[USAGE] {gymview_id} : +{elapsed_min} min (total={machine.total_minutes} min)")
+
+        # Machine qui devient active → on mémorise l'heure de début
+        elif new_state in ("utilise", "occupe") and gymview_id not in machine_active_since:
+            machine_active_since[gymview_id] = now
+
+        machine.state = new_state
+        session.add(machine)
+        session.commit()
+
+
+# ── Client MQTT ───────────────────────────────────────────────
 def on_connect(client, userdata, flags, rc):
-    print(f"Connecté au broker HiveMQ avec le code {rc}")
+    print(f"[MQTT] Connecté au broker (code {rc})")
     client.subscribe(MQTT_TOPIC)
 
 def on_message(client, userdata, msg):
-    # Cette fonction tourne dans un thread séparé
     try:
-        print(msg.payload.decode())
-        payload = msg.payload.decode().split('/')  #json.loads()
-        payload = {"gymview_id":payload[0], "state":db_states[int(payload[1])]}
-        #machine_id = payload.get("id")
-        #new_state = payload.get("state")
+        raw     = msg.payload.decode()
+        parts   = raw.split('/')
+        gymview_id = parts[0]
+        new_state  = db_states[int(parts[1])]
 
-        # 1. TEMPS RÉEL : On envoie l'info à tous les clients React via Socket.io
-        # On utilise loop.call_soon_threadsafe car Socket.io est async
+        print(f"[MQTT] {gymview_id} → {new_state}")
+
+        # Diffusion temps réel via Socket.io
+        payload = {"gymview_id": gymview_id, "state": new_state}
         loop.call_soon_threadsafe(
             lambda: asyncio.create_task(sio.emit('machineUpdate', payload))
         )
 
-        # 2. PERSISTENCE STRATÉGIQUE : On n'écrit en DB que si l'état a changé
-        if last_db_states.get(payload["gymview_id"]) != payload["state"]:
-            print(f"Changement d'état pour {payload["gymview_id"]} -> Mise à jour DB")
-            update_machine_in_db(payload["gymview_id"], payload["state"])
-            last_db_states[payload["gymview_id"]] = payload["state"]
+        # Persistance uniquement si l'état change
+        if last_db_states.get(gymview_id) != new_state:
+            update_machine_in_db(gymview_id, new_state)
+            last_db_states[gymview_id] = new_state
 
     except Exception as e:
-        print(f"Erreur MQTT: {e}")
+        print(f"[MQTT] Erreur : {e}")
 
-db_states = ["libre", "utilise", "occupe"]
 
-# Lancement du client MQTT au démarrage de FastAPI
-mqtt_client = mqtt.Client(transport="websockets") # HiveMQ Cloud utilise souvent TLS/Websockets
-mqtt_client.tls_set() # Obligatoire pour HiveMQ Cloud
+mqtt_client = mqtt.Client(transport="websockets")
+mqtt_client.tls_set()
 mqtt_client.username_pw_set(MQTT_USER, MQTT_PASS)
 mqtt_client.on_connect = on_connect
 mqtt_client.on_message = on_message
 
+
+# ── Démarrage ─────────────────────────────────────────────────
 @app.on_event("startup")
 async def startup_event():
     global loop
+    # Création des tables si elles n'existent pas encore
+    create_db_and_tables()
+
     loop = asyncio.get_event_loop()
     mqtt_client.connect_async(MQTT_BROKER, MQTT_PORT)
     mqtt_client.loop_start()
+    print("[API] Serveur GymView démarré.")
 
-def update_machine_in_db(machine_id, state):
-    # Ici, ouvre une session SQLModel et mets à jour uniquement le champ 'state'
-    with Session(engine) as session:
-        statement = select(GymMap).where(GymMap.gymview_id == machine_id)
-        machine = session.exec(statement).first()
-        if machine:
-            machine.state = state
-            session.add(machine)
-            session.commit()
 
-# Lancement avec : uvicorn main:socket_app --reload
+# Lancement : uvicorn main:socket_app --reload

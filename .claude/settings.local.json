@@ -4,7 +4,8 @@
       "Bash(npm install:*)",
       "WebFetch(domain:gym-view.vercel.app)",
       "Bash(curl -s \"https://gym-view.vercel.app/\")",
-      "Bash(curl -s \"https://gym-view.vercel.app/styles.css\")"
+      "Bash(curl -s \"https://gym-view.vercel.app/styles.css\")",
+      "Bash(python -c \":*)"
     ]
   }
 }

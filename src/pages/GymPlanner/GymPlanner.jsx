@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { GridStack } from "gridstack";
 import { motion } from "framer-motion";
-import { Plus, Save, RefreshCw, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { Plus, Save, RefreshCw, CheckCircle2, AlertCircle, Loader2, Zap } from "lucide-react";
 import { CONFIG } from "../../constants/config";
 import { ICONS, ICON_KEYS } from "../../utils/iconLoader";
 import { useMachineSocket } from "../../hooks/useMachineSocket";
@@ -46,7 +46,7 @@ export default function GymPlanner() {
   // ── Init GridStack + chargement ─────────────────────────────
   useEffect(() => {
     gridInstance.current = GridStack.init(
-      { column: 12, cellHeight: "auto", float: true },
+      { column: 23, cellHeight: 27, float: true, margin: 4 },
       gridRef.current
     );
 
@@ -127,11 +127,14 @@ export default function GymPlanner() {
   // ── Sauvegarde ───────────────────────────────────────────────
   const persistLayout = async () => {
     setSaveStatus("saving");
-    const layout = gridInstance.current.save().map(node => {
+    const rawNodes = gridInstance.current.save();
+    console.log("GridStack save() brut:", JSON.stringify(rawNodes, null, 2));
+    const layout = rawNodes.map(node => {
       const el = gridRef.current.querySelector(`[gs-id="${node.id}"]`);
       return {
-        id:          String(node.id),
-        x: node.x, y: node.y, w: node.w, h: node.h,
+        id:          String(node.id ?? el?.getAttribute("gs-id") ?? ""),
+        x: Math.round(node.x ?? 0), y: Math.round(node.y ?? 0),
+        w: Math.round(node.w ?? 2), h: Math.round(node.h ?? 2),
         gym_id:      CONFIG.GYM_ID,
         gymview_id:  el?.dataset.gymviewid || "",
         state:       el?.dataset.state     || "libre",
@@ -153,10 +156,95 @@ export default function GymPlanner() {
   // ── Ajout machine ────────────────────────────────────────────
   const addNewMachine = () => {
     const id     = `machine-${Date.now()}`;
-    const widget = gridInstance.current.addWidget({ x: 0, y: 0, w: 2, h: 2, id });
+    const widget = gridInstance.current.addWidget({ x: 0, y: 0, w: 3, h: 3, id });
     syncWidgetUI(widget, { type: CONFIG.DEFAULT_MACHINE_TYPE, label: "Nouvelle machine" });
     updateCounts();
     persistLayout();
+  };
+
+  // ── Génération d'une salle réaliste ─────────────────────────
+  const generateSampleGym = async () => {
+    gridInstance.current.removeAll();
+
+    //
+    //  PLAN — Salle Fitness (~450 m²) — grille 24 colonnes
+    //  Chaque unité ≈ 80 cm  |  Les allées sont des colonnes / rangées vides
+    //
+    //  y= 0-3  ▏ MUR DU FOND — Cardio haut de gamme (face aux vitres)
+    //  y= 4    ▏ allée de circulation
+    //  y= 5-7  ▏ Cardio 2ème rang — vélos & rameurs
+    //  y= 8-9  ▏ allée centrale
+    //  y=10-13 ▏ Zone machines guidées (3 groupes séparés par allées)
+    //  y=14    ▏ allée
+    //  y=15-17 ▏ Zone haltères & bancs
+    //  y=14-18 ▏ (droite) Coin stretching / yoga
+    //
+
+    const machines = [
+      // ── MUR DU FOND : Cardio ─────────────────────────────────
+      // 4 tapis de course (côté gauche)
+      { id:"g1",  x:0,  y:0,  w:3, h:4, type:"treadmill",    label:"Tapis 1"         },
+      { id:"g2",  x:3,  y:0,  w:3, h:4, type:"treadmill",    label:"Tapis 2"         },
+      { id:"g3",  x:6,  y:0,  w:3, h:4, type:"treadmill",    label:"Tapis 3"         },
+      { id:"g4",  x:9,  y:0,  w:3, h:4, type:"treadmill",    label:"Tapis 4"         },
+      // allée x=12 (1 col) entre tapis et elliptiques
+      // 3 vélos elliptiques (côté droit)
+      { id:"g5",  x:13, y:0,  w:3, h:4, type:"elliptical",   label:"Elliptique 1"    },
+      { id:"g6",  x:16, y:0,  w:3, h:4, type:"elliptical",   label:"Elliptique 2"    },
+      { id:"g7",  x:19, y:0,  w:3, h:4, type:"elliptical",   label:"Elliptique 3"    },
+      // coin boxe (extrême droite, s'étend sur 2 rangées)
+      { id:"g8",  x:22, y:0,  w:2, h:5, type:"boxing",       label:"Sac de frappe"   },
+
+      // ── 2ème RANG CARDIO ─────────────────────────────────────
+      // [allée y=4]
+      // 4 vélos statiques / spinning (compacts, gauche)
+      { id:"g9",  x:0,  y:5,  w:2, h:3, type:"bike",         label:"Vélo 1"          },
+      { id:"g10", x:2,  y:5,  w:2, h:3, type:"bike",         label:"Vélo 2"          },
+      { id:"g11", x:4,  y:5,  w:2, h:3, type:"bike",         label:"Vélo 3"          },
+      { id:"g12", x:6,  y:5,  w:2, h:3, type:"bike",         label:"Vélo 4"          },
+      // allée x=8 (couloir vélos / rameurs)
+      // 2 rameurs (machines très longues, basses — h=2)
+      { id:"g13", x:9,  y:5,  w:7, h:2, type:"rowing",       label:"Rameur 1"        },
+      { id:"g14", x:16, y:5,  w:6, h:2, type:"rowing",       label:"Rameur 2"        },
+
+      // ── ZONE MACHINES GUIDÉES ────────────────────────────────
+      // [allée y=8-9 (2 rangées)]
+      //
+      // Bloc power — x=0-7 (rack squat + smith)
+      { id:"g15", x:0,  y:10, w:4, h:5, type:"squat",        label:"Rack Squat"      },
+      { id:"g16", x:4,  y:10, w:4, h:5, type:"smith",        label:"Smith Machine"   },
+      // allée x=8 (couloir central)
+      // Bloc dos & câbles — x=9-17
+      { id:"g17", x:9,  y:10, w:3, h:4, type:"lat_pulldown", label:"Tirage dorsaux"  },
+      { id:"g18", x:12, y:10, w:3, h:4, type:"cable",        label:"Câble 1"         },
+      { id:"g19", x:15, y:10, w:3, h:4, type:"cable",        label:"Câble 2 (croisé)"},
+      // allée x=18
+      // Bloc membres inférieurs — x=19-23
+      { id:"g20", x:19, y:10, w:3, h:4, type:"leg_press",    label:"Leg Press"       },
+      { id:"g21", x:22, y:10, w:2, h:4, type:"lat_pulldown", label:"Curl ischios"    },
+
+      // ── ZONE HALTÈRES & BANCS ────────────────────────────────
+      // [allée y=14]
+      // Grand rack haltères (2-60 kg) — très large, peu profond
+      { id:"g22", x:0,  y:15, w:7, h:2, type:"dumbbell",     label:"Rack haltères"   },
+      // allée x=7
+      // 3 bancs de développé couché
+      { id:"g23", x:8,  y:15, w:4, h:3, type:"bench",        label:"Banc plat 1"     },
+      { id:"g24", x:12, y:15, w:4, h:3, type:"bench",        label:"Banc plat 2"     },
+      { id:"g25", x:16, y:15, w:4, h:3, type:"bench",        label:"Banc incliné"    },
+
+      // ── COIN STRETCHING / YOGA ───────────────────────────────
+      // (droite, s'étend de y=14 à y=18)
+      { id:"g26", x:21, y:14, w:3, h:5, type:"mat",          label:"Zone yoga"       },
+    ].map(m => ({ ...m, gymviewid: "", state: "libre" }));
+
+    machines.forEach(m => {
+      const widget = gridInstance.current.addWidget({ id: m.id, x: m.x, y: m.y, w: m.w, h: m.h });
+      syncWidgetUI(widget, m);
+    });
+
+    updateCounts();
+    await persistLayout();
   };
 
   const saveLabel = SAVE_LABELS[saveStatus];
@@ -173,7 +261,7 @@ export default function GymPlanner() {
       >
         <div>
           <h1 className="planner-title">Plan de la salle</h1>
-          <p className="planner-hint">Double-clic sur une machine pour la configurer · Glissez pour déplacer</p>
+          <p className="planner-hint">Double-clic pour configurer · Glissez pour déplacer · Grille 24 colonnes</p>
         </div>
 
         <div className="planner-toolbar">
@@ -182,6 +270,10 @@ export default function GymPlanner() {
               {saveLabel.icon} {saveLabel.text}
             </span>
           )}
+
+          <button className="btn-tool btn-generate" onClick={generateSampleGym} disabled={loading || saveStatus === "saving"}>
+            <Zap size={15} /> Générer une salle
+          </button>
 
           <button className="btn-tool btn-add" onClick={addNewMachine} disabled={loading}>
             <Plus size={15} /> Ajouter

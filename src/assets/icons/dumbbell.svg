@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+  <!-- Left outer plate -->
+  <rect x="1" y="8" width="3" height="8" rx="1" fill="#222" stroke="#333"/>
+  <!-- Left collar -->
+  <rect x="4" y="9.5" width="2" height="5" rx="0.5" fill="#222" stroke="#333"/>
+  <!-- Handle bar -->
+  <rect x="6" y="10.5" width="12" height="3" rx="1" fill="#222" stroke="#fff" stroke-width="1"/>
+  <!-- Right collar -->
+  <rect x="18" y="9.5" width="2" height="5" rx="0.5" fill="#222" stroke="#333"/>
+  <!-- Right outer plate -->
+  <rect x="20" y="8" width="3" height="8" rx="1" fill="#222" stroke="#333"/>
+</svg>

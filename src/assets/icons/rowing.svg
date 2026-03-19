@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+  <!-- Rail (main body) -->
+  <rect x="1" y="14" width="22" height="2.5" rx="1" fill="#222" stroke="#333"/>
+  <!-- Seat -->
+  <rect x="10" y="11" width="5" height="3" rx="1" fill="#222" stroke="#333"/>
+  <!-- Foot rest block -->
+  <rect x="2" y="11" width="4" height="4" rx="1" fill="#222" stroke="#333"/>
+  <!-- Handle cable -->
+  <line x1="6" y1="13" x2="11" y2="13" stroke="#fff" stroke-width="1.5"/>
+  <!-- Handle grip -->
+  <rect x="5.5" y="11.5" width="1" height="3" rx="0.5" fill="#fff"/>
+  <!-- Legs -->
+  <line x1="5" y1="16.5" x2="4" y2="21" stroke="#333"/>
+  <line x1="20" y1="16.5" x2="21" y2="21" stroke="#333"/>
+  <line x1="3" y1="21" x2="6" y2="21" stroke="#333"/>
+  <line x1="19" y1="21" x2="22" y2="21" stroke="#333"/>
+</svg>

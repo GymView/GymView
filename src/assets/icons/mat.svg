@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+  <!-- Main mat surface -->
+  <rect x="1" y="12" width="19" height="7" rx="1.5" fill="#222" stroke="#333"/>
+  <!-- Rolled end -->
+  <ellipse cx="20.5" cy="15.5" rx="2.5" ry="3.5" fill="#222" stroke="#333"/>
+  <!-- Mat texture lines -->
+  <line x1="5" y1="12" x2="5" y2="19" stroke="#fff" stroke-width="1"/>
+  <line x1="9" y1="12" x2="9" y2="19" stroke="#fff" stroke-width="1"/>
+  <line x1="13" y1="12" x2="13" y2="19" stroke="#fff" stroke-width="1"/>
+  <!-- Roll inner circle -->
+  <ellipse cx="20.5" cy="15.5" rx="1" ry="1.8" fill="#333" stroke="#fff" stroke-width="0.8"/>
+</svg>

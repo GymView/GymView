@@ -81,6 +81,17 @@
   box-shadow: none;
 }
 
+.btn-generate {
+  background: rgba(167,139,250,0.1);
+  border-color: rgba(167,139,250,0.28);
+  color: #a78bfa;
+}
+.btn-generate:hover:not(:disabled) {
+  background: rgba(167,139,250,0.18);
+  box-shadow: 0 4px 16px rgba(167,139,250,0.25);
+  transform: translateY(-1px);
+}
+
 .btn-save {
   background: rgba(0,230,118,0.1);
   border-color: rgba(0,230,118,0.25);
@@ -171,7 +182,15 @@
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 16px;
-  min-height: 400px;
+  min-height: 600px;
+}
+
+/* Smaller resize handle for dense grid */
+.grid-stack-item > .ui-resizable-se {
+  width: 12px !important;
+  height: 12px !important;
+  right: 2px !important;
+  bottom: 2px !important;
 }
 
 /* ── Machine widget ── */
@@ -180,10 +199,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 12px !important;
+  border-radius: 8px !important;
   border: 1px solid rgba(0, 230, 118, 0.2);
   transition: transform 0.15s, box-shadow 0.2s;
-  padding: 10px;
+  padding: 6px 4px;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -206,20 +225,26 @@
 }
 
 .machine-icon {
-  width: 38px;
-  height: 38px;
-  margin-bottom: 6px;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
   filter: invert(1);
   pointer-events: none;
   transition: transform 0.2s;
+  flex-shrink: 0;
 }
 .machine:hover .machine-icon { transform: scale(1.08); }
 
 .machine-label {
-  font-size: 0.8rem;
+  font-size: 0.68rem;
   font-weight: 600;
   pointer-events: none;
   line-height: 1.2;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 /* Indicateur d'état en bas à droite */

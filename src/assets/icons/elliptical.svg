@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+  <!-- Base -->
+  <rect x="2" y="20" width="20" height="2" rx="1" fill="#222" stroke="#333"/>
+  <!-- Left post -->
+  <line x1="7" y1="20" x2="7" y2="6" stroke="#333"/>
+  <!-- Right post -->
+  <line x1="17" y1="20" x2="17" y2="6" stroke="#333"/>
+  <!-- Top crossbar -->
+  <line x1="7" y1="6" x2="17" y2="6" stroke="#333"/>
+  <!-- Elliptical pedal path -->
+  <ellipse cx="12" cy="16" rx="5" ry="3" fill="#222" stroke="#333"/>
+  <!-- Pedal left -->
+  <circle cx="7.5" cy="16" r="1.2" fill="#fff"/>
+  <!-- Pedal right -->
+  <circle cx="16.5" cy="16" r="1.2" fill="#fff"/>
+</svg>

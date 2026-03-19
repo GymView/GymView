@@ -36,7 +36,11 @@ export const GymApi = {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Erreur lors de la mise à jour");
+        console.error("Détail erreur Pydantic:", JSON.stringify(errorData, null, 2));
+        const detail = Array.isArray(errorData.detail)
+          ? errorData.detail.map(e => `${e.loc?.join('.')} — ${e.msg}`).join('\n')
+          : errorData.detail;
+        throw new Error(detail || "Erreur lors de la mise à jour");
       }
 
       const result = await response.json();

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+  <!-- Bench pad -->
+  <rect x="3" y="12" width="18" height="3" rx="1.5" fill="#222" stroke="#333"/>
+  <!-- Left leg -->
+  <line x1="6" y1="15" x2="5" y2="21" stroke="#333"/>
+  <!-- Right leg -->
+  <line x1="18" y1="15" x2="19" y2="21" stroke="#333"/>
+  <!-- Feet -->
+  <line x1="3" y1="21" x2="8" y2="21" stroke="#333"/>
+  <line x1="16" y1="21" x2="21" y2="21" stroke="#333"/>
+  <!-- Barbell bar -->
+  <line x1="2" y1="8" x2="22" y2="8" stroke="#fff" stroke-width="2"/>
+  <!-- Left weight plate -->
+  <rect x="1" y="5.5" width="2.5" height="5" rx="0.5" fill="#222" stroke="#333"/>
+  <!-- Right weight plate -->
+  <rect x="20.5" y="5.5" width="2.5" height="5" rx="0.5" fill="#222" stroke="#333"/>
+</svg>
