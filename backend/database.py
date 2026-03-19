@@ -39,6 +39,31 @@ class GymMap(SQLModel, table=True):
     first_usage: Optional[datetime] = Field(default_factory=datetime.now)
     maintenance_threshold: int = Field(default=10000) # Seuil d'alerte (ex: 10k minutes)
 
+class Report(SQLModel, table=True):
+    id:          Optional[int]      = Field(default=None, primary_key=True)
+    gym_id:      int
+    title:       str
+    category:    str                = Field(default="autre")
+    priority:    str                = Field(default="normale")
+    machine:     str                = Field(default="")
+    description: str                = Field(default="")
+    status:      str                = Field(default="ouvert")
+    date:        datetime           = Field(default_factory=datetime.now)
+    resolved_date: Optional[datetime] = Field(default=None)
+
+
+class UsageEvent(SQLModel, table=True):
+    id:               Optional[int]      = Field(default=None, primary_key=True)
+    gym_id:           int
+    machine_id:       str
+    gymview_id:       str                = Field(default="")
+    machine_type:     str                = Field(default="")
+    machine_label:    str                = Field(default="")
+    started_at:       datetime
+    ended_at:         Optional[datetime] = Field(default=None)
+    duration_minutes: Optional[int]      = Field(default=None)
+
+
 class Gym(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str

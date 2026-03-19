@@ -5,7 +5,8 @@
       "WebFetch(domain:gym-view.vercel.app)",
       "Bash(curl -s \"https://gym-view.vercel.app/\")",
       "Bash(curl -s \"https://gym-view.vercel.app/styles.css\")",
-      "Bash(python -c \":*)"
+      "Bash(python -c \":*)",
+      "Bash(python seed_usage.py)"
     ]
   }
 }

@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle, CheckCircle2, Clock, Flame,
   Loader2, MessageSquarePlus, Package, ShieldAlert,
-  Sparkles, Trash2, Wrench, X, ChevronDown,
+  Sparkles, Trash2, Wrench, X, ChevronDown, RefreshCw,
 } from 'lucide-react';
+import { GymApi } from '../../services/gymApi';
+import { CONFIG } from '../../constants/config';
 import './Messages.css';
 
 // ── Config ───────────────────────────────────────────────────
@@ -39,8 +41,6 @@ const FILTERS = [
 
 const EMPTY_FORM = { title: '', category: 'panne', priority: 'normale', machine: '', description: '' };
 
-const STORAGE_KEY = 'gymview-reports';
-
 function getCat(key)  { return CATEGORIES.find(c => c.key === key) || CATEGORIES.at(-1); }
 function getPrio(key) { return PRIORITIES.find(p => p.key === key) || PRIORITIES[1]; }
 function getStat(key) { return STATUSES.find(s => s.key === key)   || STATUSES[0]; }
@@ -64,47 +64,63 @@ const fadeUp = (delay = 0) => ({
 
 // ─────────────────────────────────────────────────────────────
 export default function Messages() {
-  const [reports, setReports] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-    catch { return []; }
-  });
+  const [reports,    setReports]    = useState([]);
+  const [apiLoading, setApiLoading] = useState(true);
   const [filter,     setFilter]     = useState('all');
   const [showForm,   setShowForm]   = useState(false);
   const [form,       setForm]       = useState(EMPTY_FORM);
   const [errors,     setErrors]     = useState({});
   const [expandedId, setExpandedId] = useState(null);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
-  }, [reports]);
+  const loadReports = useCallback(async () => {
+    setApiLoading(true);
+    try {
+      const data = await GymApi.getReports(CONFIG.GYM_ID);
+      setReports(Array.isArray(data) ? data : []);
+    } catch {
+      setReports([]);
+    } finally {
+      setApiLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { loadReports(); }, [loadReports]);
 
   // ── CRUD ──────────────────────────────────────────────────
-  const submit = () => {
+  const submit = async () => {
     const errs = {};
-    if (!form.title.trim())    errs.title    = 'Titre requis';
-    if (!form.category)        errs.category = 'Catégorie requise';
+    if (!form.title.trim()) errs.title    = 'Titre requis';
+    if (!form.category)     errs.category = 'Catégorie requise';
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
-    setReports(prev => [{
-      id:          Date.now(),
-      title:       form.title.trim(),
-      category:    form.category,
-      priority:    form.priority,
-      machine:     form.machine.trim(),
-      description: form.description.trim(),
-      status:      'ouvert',
-      date:        new Date().toISOString(),
-    }, ...prev]);
+    try {
+      const created = await GymApi.createReport(CONFIG.GYM_ID, {
+        title:       form.title.trim(),
+        category:    form.category,
+        priority:    form.priority,
+        machine:     form.machine.trim(),
+        description: form.description.trim(),
+      });
+      setReports(prev => [created, ...prev]);
+    } catch { /* silencieux */ }
     setShowForm(false);
     setForm(EMPTY_FORM);
     setErrors({});
   };
 
-  const setStatus = (id, status) =>
-    setReports(prev => prev.map(r => r.id === id ? { ...r, status } : r));
+  const setStatus = async (id, status) => {
+    try {
+      const updated = await GymApi.updateReportStatus(id, status);
+      setReports(prev => prev.map(r => r.id === id ? updated : r));
+    } catch { /* silencieux */ }
+  };
 
-  const remove = (id) =>
-    setReports(prev => prev.filter(r => r.id !== id));
+  const remove = async (id) => {
+    try {
+      await GymApi.deleteReport(id);
+      setReports(prev => prev.filter(r => r.id !== id));
+    } catch { /* silencieux */ }
+  };
 
   const field = (key, val) => {
     setForm(prev => ({ ...prev, [key]: val }));
@@ -134,9 +150,14 @@ export default function Messages() {
             Signalez pannes, incidents et problèmes pour les traiter rapidement
           </p>
         </div>
-        <button className="btn-new-report" onClick={() => setShowForm(true)}>
-          <MessageSquarePlus size={16} /> Nouveau signalement
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn-new-report" style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)', border: '1px solid rgba(255,255,255,0.1)' }} onClick={loadReports} disabled={apiLoading}>
+            <RefreshCw size={14} className={apiLoading ? 'spin' : ''} />
+          </button>
+          <button className="btn-new-report" onClick={() => setShowForm(true)} disabled={apiLoading}>
+            <MessageSquarePlus size={16} /> Nouveau signalement
+          </button>
+        </div>
       </motion.div>
 
       {/* ── KPIs ── */}
@@ -176,7 +197,12 @@ export default function Messages() {
       {/* ── Liste ── */}
       <div className="msg-list">
         <AnimatePresence mode="popLayout">
-          {filtered.length === 0 ? (
+          {apiLoading ? (
+            <motion.div key="loading" className="msg-empty" {...fadeUp(0.1)}>
+              <Loader2 size={28} className="spin" style={{ color: 'var(--accent-primary)' }} />
+              <p>Chargement des signalements…</p>
+            </motion.div>
+          ) : filtered.length === 0 ? (
             <motion.div key="empty" className="msg-empty" {...fadeUp(0.1)}>
               <CheckCircle2 size={36} color="var(--accent-primary)" />
               <p>{filter === 'all' ? 'Aucun signalement. Tout va bien !' : 'Aucun signalement dans cette catégorie.'}</p>

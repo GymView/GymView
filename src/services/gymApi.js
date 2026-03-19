@@ -66,6 +66,60 @@ export const GymApi = {
   getAllGyms: async () => {
     const response = await fetch(`${BASE_URL}/gym_map/`);
     return await response.json();
-  }
+  },
+
+  // ── Signalements ────────────────────────────────────────────
+  getReports: async (gymId) => {
+    const response = await fetch(`${BASE_URL}/${gymId}/reports/`);
+    if (!response.ok) throw new Error("Erreur chargement signalements");
+    return response.json();
+  },
+
+  createReport: async (gymId, report) => {
+    const response = await fetch(`${BASE_URL}/${gymId}/reports/`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(report),
+    });
+    if (!response.ok) throw new Error("Erreur création signalement");
+    return response.json();
+  },
+
+  updateReportStatus: async (reportId, status) => {
+    const response = await fetch(`${BASE_URL}/reports/${reportId}`, {
+      method:  'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ status }),
+    });
+    if (!response.ok) throw new Error("Erreur mise à jour statut");
+    return response.json();
+  },
+
+  deleteReport: async (reportId) => {
+    const response = await fetch(`${BASE_URL}/reports/${reportId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error("Erreur suppression signalement");
+    return response.json();
+  },
+
+  // ── Statistiques d'usage ────────────────────────────────────
+  getHourlyUsage: async (gymId, days = 30) => {
+    const response = await fetch(`${BASE_URL}/${gymId}/usage/hourly?days=${days}`);
+    if (!response.ok) throw new Error("Erreur stats horaires");
+    return response.json();
+  },
+
+  getDailyUsage: async (gymId, days = 60) => {
+    const response = await fetch(`${BASE_URL}/${gymId}/usage/daily?days=${days}`);
+    if (!response.ok) throw new Error("Erreur stats journalières");
+    return response.json();
+  },
+
+  getUsageByMachine: async (gymId, days = 30) => {
+    const response = await fetch(`${BASE_URL}/${gymId}/usage/by_machine?days=${days}`);
+    if (!response.ok) throw new Error("Erreur stats par machine");
+    return response.json();
+  },
 
 };

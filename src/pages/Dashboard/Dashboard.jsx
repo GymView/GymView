@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Legend
+  ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Legend,
 } from 'recharts';
 import { motion } from 'framer-motion';
 import {
@@ -12,15 +12,6 @@ import { GymApi } from '../../services/gymApi';
 import { CONFIG } from '../../constants/config';
 import './Dashboard.css';
 
-// Fréquentation horaire estimée (pattern typique d'une salle)
-const OCCUPANCY_PATTERN = [
-  { h: '06h', taux: 15 }, { h: '07h', taux: 35 }, { h: '08h', taux: 55 },
-  { h: '09h', taux: 60 }, { h: '10h', taux: 50 }, { h: '11h', taux: 45 },
-  { h: '12h', taux: 65 }, { h: '13h', taux: 55 }, { h: '14h', taux: 35 },
-  { h: '15h', taux: 30 }, { h: '16h', taux: 45 }, { h: '17h', taux: 75 },
-  { h: '18h', taux: 95 }, { h: '19h', taux: 90 }, { h: '20h', taux: 70 },
-  { h: '21h', taux: 45 }, { h: '22h', taux: 20 },
-];
 
 const TOOLTIP_STYLE = {
   backgroundColor: '#07203a',
@@ -44,17 +35,25 @@ const fadeUp = (delay = 0) => ({
 
 // ─────────────────────────────────────────────────────────────
 export default function Dashboard() {
-  const [machines, setMachines] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [lastUpdate, setLastUpdate] = useState(null);
+  const [machines,    setMachines]    = useState([]);
+  const [hourlyData,  setHourlyData]  = useState([]);
+  const [dailyData,   setDailyData]   = useState([]);
+  const [loading,     setLoading]     = useState(true);
+  const [lastUpdate,  setLastUpdate]  = useState(null);
 
   useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const data = await GymApi.fetchMap(CONFIG.GYM_ID);
-      setMachines(Array.isArray(data) ? data : []);
+      const [machines, hourly, daily] = await Promise.all([
+        GymApi.fetchMap(CONFIG.GYM_ID),
+        GymApi.getHourlyUsage(CONFIG.GYM_ID, 30),
+        GymApi.getDailyUsage(CONFIG.GYM_ID, 60),
+      ]);
+      setMachines(Array.isArray(machines) ? machines : []);
+      setHourlyData(Array.isArray(hourly)  ? hourly  : []);
+      setDailyData(Array.isArray(daily)    ? daily   : []);
       setLastUpdate(new Date());
     } catch {
       setMachines([]);
@@ -240,34 +239,75 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
-      {/* ── Ligne 2 : fréquentation estimée (pleine largeur) ── */}
+      {/* ── Ligne 2 : fréquentation horaire réelle (pleine largeur) ── */}
       <motion.div className="chart-card" {...fadeUp(0.3)}>
         <h3 className="chart-title">
-          <Activity size={14} /> Fréquentation journalière estimée
-          <span className="chart-badge">simulation</span>
+          <Activity size={14} /> Fréquentation horaire — 30 derniers jours
+          {hourlyData.length === 0 && <span className="chart-badge">en attente de données</span>}
         </h3>
-        <ResponsiveContainer width="100%" height={260}>
-          <AreaChart data={OCCUPANCY_PATTERN}>
-            <defs>
-              <linearGradient id="gradOcc" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#00e676" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="#00e676" stopOpacity={0}    />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="h" stroke="#a0b8cc" tick={{ fontSize: 11 }} />
-            <YAxis stroke="#a0b8cc" tick={{ fontSize: 11 }} unit="%" domain={[0, 100]} />
-            <Tooltip
-              contentStyle={TOOLTIP_STYLE}
-              formatter={(v) => [`${v}%`, 'Occupation']}
-            />
-            <Area
-              type="monotone" dataKey="taux"
-              stroke="#00e676" strokeWidth={2}
-              fill="url(#gradOcc)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        {hourlyData.length === 0
+          ? <EmptyChart />
+          : <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={hourlyData}>
+                <defs>
+                  <linearGradient id="gradOcc" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#00e676" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#00e676" stopOpacity={0}    />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="h" stroke="#a0b8cc" tick={{ fontSize: 11 }} />
+                <YAxis stroke="#a0b8cc" tick={{ fontSize: 11 }} unit="%" domain={[0, 100]} />
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  formatter={(v, _, props) => [
+                    `${v}% d'occupation · ${props.payload.sessions} sessions`,
+                    'Activité',
+                  ]}
+                />
+                <Area type="monotone" dataKey="taux" stroke="#00e676" strokeWidth={2} fill="url(#gradOcc)" />
+              </AreaChart>
+            </ResponsiveContainer>
+        }
+      </motion.div>
+
+      {/* ── Ligne 3 : tendance journalière (pleine largeur) ── */}
+      <motion.div className="chart-card" {...fadeUp(0.35)}>
+        <h3 className="chart-title">
+          <Clock size={14} /> Tendance d'usage journalière — 60 derniers jours
+          {dailyData.length === 0 && <span className="chart-badge">en attente de données</span>}
+        </h3>
+        {dailyData.length === 0
+          ? <EmptyChart />
+          : <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={dailyData}>
+                <defs>
+                  <linearGradient id="gradDaily" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#a78bfa" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#a78bfa" stopOpacity={0}   />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis
+                  dataKey="date"
+                  stroke="#a0b8cc"
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={d => {
+                    const dt = new Date(d);
+                    return `${dt.getDate()}/${dt.getMonth() + 1}`;
+                  }}
+                  interval={Math.floor(dailyData.length / 10)}
+                />
+                <YAxis stroke="#a0b8cc" tick={{ fontSize: 11 }} unit="h" />
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  labelFormatter={d => new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                  formatter={(v) => [`${v}h d'usage cumulé`, 'Activité']}
+                />
+                <Area type="monotone" dataKey="heures" stroke="#a78bfa" strokeWidth={2} fill="url(#gradDaily)" />
+              </AreaChart>
+            </ResponsiveContainer>
+        }
       </motion.div>
 
       {/* ── Tableau détaillé ── */}

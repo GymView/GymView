@@ -3,6 +3,7 @@ from fastapi import FastAPI, Depends, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select, SQLModel
 from database import *
+from datetime import timedelta
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel
@@ -149,6 +150,125 @@ def update_gym_map(
     return {"status": "success", "message": "Carte synchronisée avec succès"}
 
 
+# ── Signalements ─────────────────────────────────────────────
+
+class ReportInput(BaseModel):
+    title:       str
+    category:    str = "autre"
+    priority:    str = "normale"
+    machine:     str = ""
+    description: str = ""
+
+class ReportUpdate(BaseModel):
+    status: str
+
+@app.get("/{gym_id}/reports/")
+def get_reports(gym_id: int, session: Session = Depends(get_session)):
+    return session.exec(
+        select(Report).where(Report.gym_id == gym_id).order_by(Report.date.desc())
+    ).all()
+
+@app.post("/{gym_id}/reports/")
+def create_report(gym_id: int, body: ReportInput, session: Session = Depends(get_session)):
+    r = Report(gym_id=gym_id, **body.model_dump())
+    session.add(r)
+    session.commit()
+    session.refresh(r)
+    return r
+
+@app.patch("/reports/{report_id}")
+def update_report(report_id: int, body: ReportUpdate, session: Session = Depends(get_session)):
+    r = session.get(Report, report_id)
+    if not r:
+        raise HTTPException(status_code=404, detail="Signalement introuvable")
+    r.status = body.status
+    if body.status == "resolu":
+        r.resolved_date = datetime.now()
+    session.add(r)
+    session.commit()
+    session.refresh(r)
+    return r
+
+@app.delete("/reports/{report_id}")
+def delete_report(report_id: int, session: Session = Depends(get_session)):
+    r = session.get(Report, report_id)
+    if not r:
+        raise HTTPException(status_code=404, detail="Signalement introuvable")
+    session.delete(r)
+    session.commit()
+    return {"status": "deleted"}
+
+
+# ── Statistiques d'usage ──────────────────────────────────────
+
+@app.get("/{gym_id}/usage/hourly")
+def get_hourly_usage(gym_id: int, days: int = 30, session: Session = Depends(get_session)):
+    """Distribution horaire des sessions (derniers N jours)."""
+    since = datetime.now() - timedelta(days=days)
+    events = session.exec(
+        select(UsageEvent).where(
+            UsageEvent.gym_id == gym_id,
+            UsageEvent.started_at >= since,
+            UsageEvent.ended_at.is_not(None),
+        )
+    ).all()
+    hourly = {h: 0 for h in range(6, 23)}
+    for ev in events:
+        h = ev.started_at.hour
+        if 6 <= h <= 22:
+            hourly[h] += 1
+    max_c = max(hourly.values(), default=1) or 1
+    return [
+        {"h": f"{h:02d}h", "taux": round(c / max_c * 100), "sessions": c}
+        for h, c in sorted(hourly.items())
+    ]
+
+@app.get("/{gym_id}/usage/daily")
+def get_daily_usage(gym_id: int, days: int = 60, session: Session = Depends(get_session)):
+    """Minutes d'usage cumulées par jour (derniers N jours)."""
+    since = datetime.now() - timedelta(days=days)
+    events = session.exec(
+        select(UsageEvent).where(
+            UsageEvent.gym_id == gym_id,
+            UsageEvent.started_at >= since,
+            UsageEvent.duration_minutes.is_not(None),
+        )
+    ).all()
+    daily: dict[str, int] = {}
+    for ev in events:
+        day = ev.started_at.date().isoformat()
+        daily[day] = daily.get(day, 0) + (ev.duration_minutes or 0)
+    return [
+        {"date": d, "heures": round(m / 60, 1), "minutes": m}
+        for d, m in sorted(daily.items())
+    ]
+
+@app.get("/{gym_id}/usage/by_machine")
+def get_usage_by_machine(gym_id: int, days: int = 30, session: Session = Depends(get_session)):
+    """Sessions et minutes par machine (derniers N jours)."""
+    since = datetime.now() - timedelta(days=days)
+    events = session.exec(
+        select(UsageEvent).where(
+            UsageEvent.gym_id == gym_id,
+            UsageEvent.started_at >= since,
+        )
+    ).all()
+    by_machine: dict = {}
+    for ev in events:
+        mid = ev.machine_id
+        if mid not in by_machine:
+            by_machine[mid] = {
+                "machine_id": mid,
+                "label": ev.machine_label,
+                "type":  ev.machine_type,
+                "sessions": 0,
+                "minutes":  0,
+            }
+        by_machine[mid]["sessions"] += 1
+        by_machine[mid]["minutes"]  += ev.duration_minutes or 0
+    return sorted(by_machine.values(), key=lambda x: x["minutes"], reverse=True)
+
+
 @app.post("/reset_maintenance/{machine_id}")
 def reset_maintenance(
     machine_id: str,
@@ -197,17 +317,37 @@ def update_machine_in_db(gymview_id: str, new_state: str):
 
         now = datetime.now()
 
-        # Machine qui redevient libre → on comptabilise le temps d'usage
+        # Machine qui redevient libre → comptabilise le temps + clôt l'UsageEvent
         if new_state == "libre" and gymview_id in machine_active_since:
             elapsed_min = int((now - machine_active_since.pop(gymview_id)).total_seconds() / 60)
             if elapsed_min > 0:
                 machine.total_minutes            += elapsed_min
                 machine.minutes_since_last_maint += elapsed_min
                 print(f"[USAGE] {gymview_id} : +{elapsed_min} min (total={machine.total_minutes} min)")
+                # Clôture de l'UsageEvent ouvert
+                open_ev = session.exec(
+                    select(UsageEvent).where(
+                        UsageEvent.machine_id == machine.id,
+                        UsageEvent.ended_at.is_(None),
+                    )
+                ).first()
+                if open_ev:
+                    open_ev.ended_at         = now
+                    open_ev.duration_minutes = elapsed_min
+                    session.add(open_ev)
 
-        # Machine qui devient active → on mémorise l'heure de début
+        # Machine qui devient active → mémorise l'heure + ouvre un UsageEvent
         elif new_state in ("utilise", "occupe") and gymview_id not in machine_active_since:
             machine_active_since[gymview_id] = now
+            ev = UsageEvent(
+                gym_id        = machine.gym_id,
+                machine_id    = machine.id,
+                gymview_id    = gymview_id,
+                machine_type  = machine.type,
+                machine_label = machine.label,
+                started_at    = now,
+            )
+            session.add(ev)
 
         machine.state = new_state
         session.add(machine)
