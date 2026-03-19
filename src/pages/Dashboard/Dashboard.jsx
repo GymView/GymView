@@ -240,62 +240,35 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
-      {/* ── Ligne 2 : santé du parc + fréquentation estimée ── */}
-      <div className="charts-row">
-
-        <motion.div className="chart-card" {...fadeUp(0.3)}>
-          <h3 className="chart-title"><Heart size={14} /> Santé du parc par machine</h3>
-          {healthChartData.length === 0
-            ? <EmptyChart />
-            : <ResponsiveContainer width="100%" height={Math.max(200, healthChartData.length * 38)}>
-                <BarChart data={healthChartData} layout="vertical" barSize={14}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
-                  <XAxis type="number" domain={[0, 100]} stroke="#a0b8cc" tick={{ fontSize: 11 }} unit="%" />
-                  <YAxis type="category" dataKey="name" stroke="#a0b8cc" tick={{ fontSize: 11 }} width={110} />
-                  <Tooltip
-                    contentStyle={TOOLTIP_STYLE}
-                    formatter={(v) => [`${v}%`, 'Santé']}
-                    cursor={{ fill: 'rgba(255,255,255,0.04)' }}
-                  />
-                  <Bar dataKey="sante" radius={[0, 6, 6, 0]}>
-                    {healthChartData.map((entry, i) => (
-                      <Cell key={i} fill={entry.fill} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-          }
-        </motion.div>
-
-        <motion.div className="chart-card" {...fadeUp(0.35)}>
-          <h3 className="chart-title">
-            <Activity size={14} /> Fréquentation journalière estimée
-            <span className="chart-badge">simulation</span>
-          </h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={OCCUPANCY_PATTERN}>
-              <defs>
-                <linearGradient id="gradOcc" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#00e676" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#00e676" stopOpacity={0}    />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="h" stroke="#a0b8cc" tick={{ fontSize: 11 }} />
-              <YAxis stroke="#a0b8cc" tick={{ fontSize: 11 }} unit="%" domain={[0, 100]} />
-              <Tooltip
-                contentStyle={TOOLTIP_STYLE}
-                formatter={(v) => [`${v}%`, 'Occupation']}
-              />
-              <Area
-                type="monotone" dataKey="taux"
-                stroke="#00e676" strokeWidth={2}
-                fill="url(#gradOcc)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </motion.div>
-      </div>
+      {/* ── Ligne 2 : fréquentation estimée (pleine largeur) ── */}
+      <motion.div className="chart-card" {...fadeUp(0.3)}>
+        <h3 className="chart-title">
+          <Activity size={14} /> Fréquentation journalière estimée
+          <span className="chart-badge">simulation</span>
+        </h3>
+        <ResponsiveContainer width="100%" height={260}>
+          <AreaChart data={OCCUPANCY_PATTERN}>
+            <defs>
+              <linearGradient id="gradOcc" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%"  stopColor="#00e676" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="#00e676" stopOpacity={0}    />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+            <XAxis dataKey="h" stroke="#a0b8cc" tick={{ fontSize: 11 }} />
+            <YAxis stroke="#a0b8cc" tick={{ fontSize: 11 }} unit="%" domain={[0, 100]} />
+            <Tooltip
+              contentStyle={TOOLTIP_STYLE}
+              formatter={(v) => [`${v}%`, 'Occupation']}
+            />
+            <Area
+              type="monotone" dataKey="taux"
+              stroke="#00e676" strokeWidth={2}
+              fill="url(#gradOcc)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </motion.div>
 
       {/* ── Tableau détaillé ── */}
       <motion.div className="chart-card table-card" {...fadeUp(0.4)}>
