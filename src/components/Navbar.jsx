@@ -11,7 +11,8 @@ import {
 } from '@tabler/icons-react';
 import { Code, Group } from '@mantine/core';
 import classes from './NavbarSimple.module.css';
-import myLogo from '../assets/logo-v-zion.svg';
+//import myLogo from '../assets/logo-v-zion.svg';
+import myLogo from '../../public/v-zion-logo-white.svg';
 
 const data = [
   { link: '', label: 'Home', icon: IconHome },
