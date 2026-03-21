@@ -1,4 +1,4 @@
-/* ─── Dashboard Analytics — GymView ─────────────────────────── */
+/* ─── Dashboard Analytics — V-zion ──────────────────────────── */
 
 .dashboard-container {
   padding: 32px;
@@ -22,7 +22,7 @@
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 4px;
-  background: linear-gradient(135deg, #ffffff 30%, #00e676 100%);
+  background: linear-gradient(135deg, #ffffff 40%, #818cf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -79,7 +79,7 @@
 }
 .kpi-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.35), 0 0 20px var(--accent-glow);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 20px var(--accent-glow);
   border-color: var(--border-hover);
   background: var(--bg-card-hover);
 }
@@ -136,7 +136,7 @@
 }
 .chart-card:hover {
   border-color: var(--border-hover);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
 
 .chart-title {
@@ -157,9 +157,9 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: rgba(100, 149, 237, 0.15);
-  border: 1px solid rgba(100, 149, 237, 0.25);
-  color: #6495ed;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  color: #818cf8;
   padding: 2px 7px;
   border-radius: 20px;
 }
@@ -192,7 +192,7 @@
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: var(--text-muted);
-  background: rgba(0,230,118,0.04);
+  background: rgba(255,255,255,0.03);
   border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
@@ -204,15 +204,15 @@
 }
 
 .dash-table tr:last-child td { border-bottom: none; }
-.dash-table tr:hover td { background: rgba(0,230,118,0.025); }
+.dash-table tr:hover td { background: rgba(255,255,255,0.02); }
 
 .row-critical td { background: rgba(230,57,70,0.05) !important; }
 .row-warn     td { background: rgba(244,162,97,0.04) !important; }
 
-.td-name { font-weight: 600; }
+.td-name  { font-weight: 600; }
 .td-muted { color: var(--text-muted); text-transform: capitalize; }
-.td-num { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-muted); }
-.text-danger { color: #ff6b6b !important; display: flex; align-items: center; justify-content: flex-end; }
+.td-num   { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-muted); }
+.text-danger { color: #f87171 !important; display: flex; align-items: center; justify-content: flex-end; }
 
 /* State badges */
 .state-badge {
@@ -222,12 +222,12 @@
   font-size: 0.72rem;
   font-weight: 600;
 }
-.state-libre   { background: rgba(0,230,118,0.15);  color: #00e676; border: 1px solid rgba(0,230,118,0.3); }
-.state-utilise { background: rgba(255,224,102,0.15); color: #ffe066; border: 1px solid rgba(255,224,102,0.3); }
-.state-occupe  { background: rgba(255,107,107,0.15); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); }
+.state-libre   { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+.state-utilise { background: rgba(245,158,11,0.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+.state-occupe  { background: rgba(239,68,68,0.15);   color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
 
 /* IoT status */
-.iot-on  { display: flex; align-items: center; gap: 5px; color: #00e676;  font-size: 0.78rem; font-weight: 500; }
+.iot-on  { display: flex; align-items: center; gap: 5px; color: #34d399; font-size: 0.78rem; font-weight: 500; }
 .iot-off { display: flex; align-items: center; gap: 5px; color: var(--text-muted); font-size: 0.78rem; }
 
 /* Mini health bar */

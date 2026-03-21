@@ -1,4 +1,4 @@
-/* ─── Signalement de problèmes — GymView ────────────────────── */
+/* ─── Signalement de problèmes — V-zion ─────────────────────── */
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 0.8s linear infinite; }
 
@@ -24,7 +24,7 @@
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 4px;
-  background: linear-gradient(135deg, #ffffff 30%, #00e676 100%);
+  background: linear-gradient(135deg, #ffffff 40%, #818cf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -42,7 +42,7 @@
   gap: 8px;
   padding: 10px 20px;
   background: var(--accent-primary);
-  color: var(--bg-primary);
+  color: #ffffff;
   border: none;
   border-radius: 10px;
   font-size: 0.88rem;
@@ -110,12 +110,12 @@
   font-weight: 600;
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.08);
   background: rgba(255,255,255,0.04);
   color: var(--text-muted);
   transition: all 0.2s;
 }
-.filter-pill:hover { border-color: rgba(255,255,255,0.2); color: var(--text-main); transform: none; box-shadow: none; }
+.filter-pill:hover { border-color: rgba(255,255,255,0.18); color: var(--text-main); transform: none; box-shadow: none; }
 .filter-pill.active { background: rgba(255,255,255,0.06); }
 
 .filter-count {
@@ -154,10 +154,10 @@
 .report-card:hover { border-color: var(--border-hover); }
 
 /* Liseré de priorité à gauche */
-.report-card.priority-urgente { border-left: 3px solid #e63946; }
-.report-card.priority-haute   { border-left: 3px solid #f4a261; }
-.report-card.priority-normale { border-left: 3px solid #6495ed; }
-.report-card.priority-faible  { border-left: 3px solid #a0b8cc44; }
+.report-card.priority-urgente { border-left: 3px solid #ef4444; }
+.report-card.priority-haute   { border-left: 3px solid #f59e0b; }
+.report-card.priority-normale { border-left: 3px solid #6366f1; }
+.report-card.priority-faible  { border-left: 3px solid rgba(148,163,184,0.3); }
 
 .card-main {
   display: flex;
@@ -293,18 +293,18 @@
   font-weight: 600;
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
-  background: rgba(230,57,70,0.1);
-  border: 1px solid rgba(230,57,70,0.25);
-  color: #ff6b6b;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.22);
+  color: #f87171;
   transition: background 0.2s;
 }
-.btn-delete-report:hover { background: rgba(230,57,70,0.18); transform: none; box-shadow: none; }
+.btn-delete-report:hover { background: rgba(239,68,68,0.15); transform: none; box-shadow: none; }
 
 /* ── Modal formulaire ── */
 .form-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(4,15,26,0.82);
+  background: rgba(0,0,0,0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -314,12 +314,12 @@
 }
 
 .form-modal {
-  background: #07203a;
+  background: #141420;
   border: 1px solid var(--border-color);
   border-radius: 18px;
   width: 100%;
   max-width: 520px;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 40px var(--accent-glow);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.7), 0 0 40px var(--accent-glow);
   overflow: hidden;
 }
 
@@ -329,7 +329,7 @@
   justify-content: space-between;
   padding: 18px 22px;
   border-bottom: 1px solid var(--border-color);
-  background: rgba(0,230,118,0.05);
+  background: rgba(99,102,241,0.05);
 }
 
 .form-header h3 {
@@ -369,7 +369,7 @@
   letter-spacing: 0.05em;
 }
 
-.required { color: #e63946; }
+.required { color: #f87171; }
 .optional  { color: var(--text-muted); font-style: italic; text-transform: none; letter-spacing: 0; font-weight: 400; }
 
 .field input,
@@ -390,15 +390,15 @@
 .field textarea:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(0,230,118,0.12);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
 }
 
 .field-error input,
-.field-error select { border-color: #e63946; }
+.field-error select { border-color: #ef4444; }
 
 .error-msg {
   font-size: 0.74rem;
-  color: #e63946;
+  color: #f87171;
   font-weight: 500;
 }
 
@@ -414,7 +414,7 @@
   gap: 10px;
   padding: 16px 22px;
   border-top: 1px solid var(--border-color);
-  background: rgba(0,230,118,0.03);
+  background: rgba(99,102,241,0.03);
 }
 
 .btn-form-cancel {
@@ -436,7 +436,7 @@
   align-items: center;
   gap: 7px;
   background: var(--accent-primary);
-  color: var(--bg-primary);
+  color: #ffffff;
   border: none;
   padding: 9px 20px;
   border-radius: 8px;

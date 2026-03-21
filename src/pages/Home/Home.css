@@ -1,4 +1,4 @@
-/* --- Home — GymView --- */
+/* --- Home — V-zion --- */
 
 .home-container {
   padding: 32px;
@@ -22,7 +22,7 @@
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 4px 0;
-  background: linear-gradient(135deg, #ffffff 30%, #00e676 100%);
+  background: linear-gradient(135deg, #ffffff 40%, #818cf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -62,9 +62,7 @@
   box-shadow: none;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 0.8s linear infinite; }
 
 /* ── KPI grid ── */
@@ -87,7 +85,7 @@
 }
 .home-kpi-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.35), 0 0 24px var(--accent-glow);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 24px var(--accent-glow);
   border-color: var(--border-hover);
   background: var(--bg-card-hover);
 }
@@ -218,9 +216,9 @@
 }
 .state-dot:hover { transform: scale(1.4); }
 
-.state-dot-libre  { background: var(--state-free);  border: 1px solid #2d6a4f; }
-.state-dot-utilise { background: var(--state-busy); border: 1px solid #857000; }
-.state-dot-occupe { background: var(--state-occ);   border: 1px solid #a4161a; }
+.state-dot-libre   { background: #16a34a; border: 1px solid #166534; }
+.state-dot-utilise { background: #d97706; border: 1px solid #92400e; }
+.state-dot-occupe  { background: #dc2626; border: 1px solid #7f1d1d; }
 
 /* ── All good ── */
 .home-all-good {

@@ -6,35 +6,35 @@
   font-weight: 400;
 
   color-scheme: dark;
-  color: #ffffff;
-  background-color: #040f1a;
+  color: #e2e8f0;
+  background-color: #0b0c0e;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Design tokens GymView */
-  --bg-primary: #040f1a;
-  --bg-secondary: #07203a;
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --bg-card-hover: rgba(0, 230, 118, 0.04);
-  --bg-input: rgba(255, 255, 255, 0.05);
-  --text-main: #ffffff;
-  --text-muted: #a0b8cc;
-  --border-color: rgba(0, 230, 118, 0.15);
-  --border-hover: rgba(0, 230, 118, 0.35);
-  --accent-primary: #00e676;
-  --accent-dark: #00b359;
-  --accent-glow: rgba(0, 230, 118, 0.25);
+  /* Design tokens V-zion */
+  --bg-primary:    #0b0c0e;
+  --bg-secondary:  #13151a;
+  --bg-card:       rgba(255, 255, 255, 0.04);
+  --bg-card-hover: rgba(59, 130, 246, 0.05);
+  --bg-input:      rgba(255, 255, 255, 0.06);
+  --text-main:     #e2e8f0;
+  --text-muted:    #64748b;
+  --border-color:  rgba(255, 255, 255, 0.08);
+  --border-hover:  rgba(255, 255, 255, 0.18);
+  --accent-primary: #3b82f6;
+  --accent-dark:    #2563eb;
+  --accent-glow:    rgba(59, 130, 246, 0.2);
 
-  /* Couleurs d'état */
-  --state-free: #1b4332;
-  --state-free-text: #b7e4c7;
-  --state-busy: #5c4d00;
-  --state-busy-text: #ffe066;
-  --state-occ: #660708;
-  --state-occ-text: #ffb3b3;
+  /* Couleurs d'état machines */
+  --state-free:      #052e16;
+  --state-free-text: #86efac;
+  --state-busy:      #422006;
+  --state-busy-text: #fde68a;
+  --state-occ:       #450a0a;
+  --state-occ-text:  #fca5a5;
 }
 
 *, *::before, *::after {
@@ -71,7 +71,7 @@ button {
   font-weight: 500;
   font-family: inherit;
   background-color: var(--accent-primary);
-  color: var(--bg-primary);
+  color: #ffffff;
   cursor: pointer;
   transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
 }
@@ -81,6 +81,6 @@ button:hover {
 }
 button:focus,
 button:focus-visible {
-  outline: 3px solid rgba(0, 230, 118, 0.4);
+  outline: 3px solid rgba(59, 130, 246, 0.4);
   outline-offset: 2px;
 }

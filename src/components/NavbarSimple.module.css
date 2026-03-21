@@ -5,8 +5,8 @@
   padding: var(--mantine-spacing-md);
   display: flex;
   flex-direction: column;
-  background-color: #07203a;
-  border-right: 1px solid rgba(0, 230, 118, 0.12);
+  background-color: #13151a;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
   position: sticky;
   top: 0;
 }
@@ -16,12 +16,12 @@
 .header {
   padding-bottom: var(--mantine-spacing-md);
   margin-bottom: var(--mantine-spacing-md);
-  border-bottom: 1px solid rgba(0, 230, 118, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .footer {
   padding-top: var(--mantine-spacing-md);
-  border-top: 1px solid rgba(0, 230, 118, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .link {
@@ -30,29 +30,30 @@
   text-decoration: none;
   padding: 0.6rem var(--mantine-spacing-sm);
   border-radius: 8px;
-  color: #a0b8cc;
+  color: var(--text-muted, #8b9ab0);
   font-weight: 500;
   font-size: 0.9rem;
   transition: background-color 0.2s, color 0.2s;
   margin-bottom: 4px;
+  border: 1px solid transparent;
 }
 
 .link:hover {
-  background-color: rgba(0, 230, 118, 0.08);
-  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #f1f5f9;
 }
 
 .link[data-active] {
-  background-color: rgba(0, 230, 118, 0.12);
-  color: #00e676;
-  border: 1px solid rgba(0, 230, 118, 0.25);
+  background-color: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.25);
 }
 
 .link[data-active]:hover {
-  background-color: rgba(0, 230, 118, 0.18);
+  background-color: rgba(59, 130, 246, 0.18);
 }
 
 .linkIcon {
   margin-right: var(--mantine-spacing-sm);
-  opacity: 0.85;
+  opacity: 0.8;
 }
